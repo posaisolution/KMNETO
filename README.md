@@ -1,36 +1,66 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# KmNeto
 
-## Getting Started
+Calculadora de rentabilidad real para choferes de plataformas de transporte (Uber, DiDi, inDrive y otras) en México.
 
-First, run the development server:
+La app responde una pregunta simple: **¿cuánto gano de verdad después de gasolina, mantenimiento, depreciación y gastos fijos?**
+
+## Alcance actual
+
+- **Hito A — Motor de cálculo:** funciones puras para calcular ingreso neto, costos, margen y punto de equilibrio, con pruebas automatizadas.
+- **Hitos B-D:** formulario móvil, pantalla de resultados, captura de contacto, cuenta, historial y pagos (por definir).
+
+## Stack
+
+- [Next.js](https://nextjs.org/) (App Router)
+- [TypeScript](https://www.typescriptlang.org/) (modo estricto)
+- [Tailwind CSS](https://tailwindcss.com/)
+- [Vitest](https://vitest.dev/)
+
+## Cómo correrlo localmente
 
 ```bash
+# 1. Instalar dependencias
+npm install
+
+# 2. Correr el servidor de desarrollo
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Abre [http://localhost:3000](http://localhost:3000) en tu navegador.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Pruebas y calidad
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+# Pruebas
+npm run test
 
-## Learn More
+# Tipos
+npx tsc --noEmit
 
-To learn more about Next.js, take a look at the following resources:
+# Lint
+npm run lint
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Convenciones de ramas
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+La rama `main` está protegida. **No se permite subir directamente a `main`.**
 
-## Deploy on Vercel
+Cada cambio debe pasar por una rama y un pull request:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```bash
+git checkout -b feat/nombre-de-la-funcionalidad main
+# ... commits ...
+git push -u origin feat/nombre-de-la-funcionalidad
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Tipos de rama comunes:
+
+- `feat/...` — nueva funcionalidad
+- `fix/...` — corrección de errores
+- `docs/...` — documentación
+- `test/...` — pruebas
+- `chore/...` — mantenimiento o herramientas
+
+## Licencia
+
+Por definir.
