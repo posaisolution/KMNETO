@@ -4,6 +4,10 @@ export type Imprevisto = {
   monto: number;
 };
 
+/**
+ * Optional vehicle profile for future features (e.g. detailed depreciation).
+ * Not used in the simplified MVP calculator.
+ */
 export type PerfilAuto = {
   rendimientoKmPorLitro: number;
   precioLitro: number;
@@ -20,23 +24,34 @@ export type EntradaPeriodo = {
   km: number;
   ingresoPlataforma: number;
   propinasYEfectivo?: number;
-  diasTrabajados: number;
+
+  /**
+   * Real fuel expense for the period.
+   * If provided, it overrides the estimation from rendimiento + precio.
+   */
   gastoRealGasolina?: number;
-};
 
-export type HistorialImprevistos = {
-  imprevistos: Imprevisto[];
-  kmTotal: number;
-};
+  /** Fuel efficiency (km/l). Used only when gastoRealGasolina is not provided. */
+  rendimientoKmPorLitro?: number;
 
-export type ModoImprevistos = 'reales' | 'suavizados';
+  /** Fuel price (MXN/l). Used only when gastoRealGasolina is not provided. */
+  precioLitro?: number;
+
+  /** Fixed costs for the period, e.g. car rent, insurance prorated, etc. */
+  gastosFijosPeriodo?: number;
+
+  /** Unexpected expenses that happened in the period (flat tire, tow, fine...). */
+  imprevistos?: Imprevisto[];
+
+  /** Other period expenses (food, cell recharge, etc.). */
+  otrosGastosPeriodo?: number;
+};
 
 export type ResultadoPeriodo = {
   gasolina: number;
-  mantenimiento: number;
-  depreciacion: number;
-  fijosProrrateados: number;
+  gastosFijos: number;
   imprevistos: number;
+  otrosGastos: number;
   costoTotal: number;
   ingresoTotal: number;
   neto: number;
@@ -45,6 +60,4 @@ export type ResultadoPeriodo = {
   costoPorKm: number | null;
   margenPct: number | null;
   puntoEquilibrioHora: number | null;
-  modoImprevistos: ModoImprevistos;
-  imprevistosHistorialInsuficiente: boolean;
 };
