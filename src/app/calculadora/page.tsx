@@ -143,16 +143,16 @@ export default function CalculadoraPage() {
 
   const inputClass = (hasError: boolean) =>
     [
-      "w-full rounded-lg border bg-white px-4 py-3 text-lg text-black shadow-sm outline-none transition",
-      "focus:border-blue-500 focus:ring-2 focus:ring-blue-200",
-      hasError ? "border-red-500" : "border-gray-300",
+      "w-full rounded-xl border bg-white px-4 py-3.5 text-lg text-bg shadow-sm outline-none transition",
+      "focus:border-emerald-400 focus:ring-2 focus:ring-emerald-400/20",
+      hasError ? "border-danger" : "border-line",
     ].join(" ");
 
   const renderField = ({ key, label, unit, required }: FieldDef) => (
     <div key={key}>
-      <label htmlFor={key} className="mb-1 block text-sm font-medium text-gray-700">
+      <label htmlFor={key} className="mb-1.5 block text-sm font-medium text-fg">
         {label}
-        {!required && <span className="ml-1 text-gray-400">({messages.placeholders.optional})</span>}
+        {!required && <span className="ml-1 text-dim">({messages.placeholders.optional})</span>}
       </label>
       <div className="relative">
         <input
@@ -166,127 +166,136 @@ export default function CalculadoraPage() {
           className={inputClass(Boolean(touched[key] && errors[key]))}
         />
         {unit && (
-          <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-sm text-gray-400">
+          <span className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-sm text-dim">
             {unit}
           </span>
         )}
       </div>
       {touched[key] && errors[key] && (
-        <p className="mt-1 text-xs text-red-600">{errors[key]}</p>
+        <p className="mt-1.5 text-xs text-danger">{errors[key]}</p>
       )}
     </div>
   );
 
   return (
-    <main className="min-h-screen bg-gray-50 px-4 pb-6 pt-4 text-gray-900">
-      <header className="mx-auto mb-4 flex max-w-md items-center justify-between">
-        <Link href="/" className="text-sm font-semibold text-blue-700 hover:underline">
-          ← Volver
-        </Link>
-        <span className="text-lg font-bold text-blue-700">{messages.app.title}</span>
-        <span className="w-12" aria-hidden="true" />
+    <div className="relative min-h-screen">
+      <div className="aurora" aria-hidden="true">
+        <span className="a1" />
+        <span className="a2" />
+        <span className="a3" />
+      </div>
+      <div className="grid-lines" aria-hidden="true" />
+
+      <header className="relative z-10 border-b border-line bg-bg/80 px-5 py-4 backdrop-blur">
+        <div className="mx-auto flex max-w-xl items-center justify-between">
+          <Link href="/" className="text-sm font-semibold text-fg transition hover:text-emerald-300">
+            ← Volver
+          </Link>
+          <span className="text-lg font-bold text-fg">{messages.app.title}</span>
+          <span className="w-12" aria-hidden="true" />
+        </div>
       </header>
 
-      <div className="mx-auto max-w-md space-y-6">
-        <header className="text-center">
-          <h1 className="text-3xl font-bold tracking-tight text-blue-700">
-            {messages.app.title}
-          </h1>
-          <p className="mt-2 text-sm text-gray-600">{messages.app.subtitle}</p>
-        </header>
+      <main className="relative z-10 px-5 pb-12 pt-8">
+        <div className="mx-auto max-w-xl space-y-6">
+          <header className="text-center">
+            <h1 className="text-3xl font-extrabold tracking-tight text-fg md:text-4xl">
+              {messages.app.title}
+            </h1>
+            <p className="mt-2 text-sm text-muted">{messages.app.subtitle}</p>
+          </header>
 
-        <form onSubmit={handleCalcular} className="space-y-6">
-          <section className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
-            <h2 className="mb-4 text-lg font-semibold">{messages.sections.periodo}</h2>
-            <div className="space-y-4">{PERIOD_FIELDS.map(renderField)}</div>
-          </section>
+          <form onSubmit={handleCalcular} className="space-y-5">
+            <section className="rounded-3xl border border-line bg-surface p-6 shadow-xl shadow-black/30">
+              <h2 className="mb-5 text-lg font-semibold text-fg">{messages.sections.periodo}</h2>
+              <div className="space-y-4">{PERIOD_FIELDS.map(renderField)}</div>
+            </section>
 
-          <section className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
-            <h2 className="mb-4 text-lg font-semibold">{messages.sections.gastos}</h2>
+            <section className="rounded-3xl border border-line bg-surface p-6 shadow-xl shadow-black/30">
+              <h2 className="mb-5 text-lg font-semibold text-fg">{messages.sections.gastos}</h2>
 
-            <div className="mb-4 rounded-lg bg-gray-100 p-3">
-              <span className="block text-sm font-medium text-gray-700">Gasolina</span>
-              <div className="mt-2 flex gap-2">
-                <button
-                  type="button"
-                  onClick={() => setGasMode("real")}
-                  className={`flex-1 rounded-lg px-3 py-2 text-sm font-semibold ${
-                    gasMode === "real"
-                      ? "bg-blue-600 text-white"
-                      : "bg-white text-gray-700"
-                  }`}
-                >
-                  Gasto real
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setGasMode("estimado")}
-                  className={`flex-1 rounded-lg px-3 py-2 text-sm font-semibold ${
-                    gasMode === "estimado"
-                      ? "bg-blue-600 text-white"
-                      : "bg-white text-gray-700"
-                  }`}
-                >
-                  Estimar
-                </button>
+              <div className="mb-5 rounded-2xl border border-line-strong bg-white/[0.03] p-4">
+                <span className="block text-sm font-medium text-fg">Gasolina</span>
+                <div className="mt-3 flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setGasMode("real")}
+                    className={`flex-1 rounded-xl px-3 py-2.5 text-sm font-semibold transition ${
+                      gasMode === "real"
+                        ? "bg-gradient-to-r from-blue-600 to-emerald-500 text-bg"
+                        : "border border-line bg-white/5 text-fg hover:bg-white/10"
+                    }`}
+                  >
+                    Gasto real
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setGasMode("estimado")}
+                    className={`flex-1 rounded-xl px-3 py-2.5 text-sm font-semibold transition ${
+                      gasMode === "estimado"
+                        ? "bg-gradient-to-r from-blue-600 to-emerald-500 text-bg"
+                        : "border border-line bg-white/5 text-fg hover:bg-white/10"
+                    }`}
+                  >
+                    Estimar
+                  </button>
+                </div>
+                <div className="mt-4 space-y-4">
+                  {gasMode === "real"
+                    ? renderField(GAS_REAL_FIELD)
+                    : GAS_ESTIMATE_FIELDS.map(renderField)}
+                </div>
               </div>
-              <div className="mt-3 space-y-3">
-                {gasMode === "real"
-                  ? renderField(GAS_REAL_FIELD)
-                  : GAS_ESTIMATE_FIELDS.map(renderField)}
+
+              <div className="space-y-4">{EXPENSE_FIELDS.map(renderField)}</div>
+            </section>
+
+            <div className="flex gap-3">
+              <button
+                type="submit"
+                className="flex-1 rounded-xl bg-gradient-to-r from-blue-600 to-emerald-500 px-4 py-4 text-lg font-bold text-bg shadow-lg shadow-emerald-500/25 transition hover:-translate-y-0.5 hover:shadow-emerald-500/40"
+              >
+                {messages.buttons.calcular}
+              </button>
+              <button
+                type="button"
+                onClick={handleLimpiar}
+                className="rounded-xl border border-line-strong bg-white/5 px-5 py-4 text-lg font-semibold text-fg transition hover:bg-white/10"
+              >
+                {messages.buttons.limpiar}
+              </button>
+            </div>
+          </form>
+
+          {resultado && (
+            <section className="rounded-3xl border border-line bg-surface p-6 shadow-xl shadow-black/30">
+              <h2 className="mb-5 text-lg font-semibold text-fg">{messages.sections.resultados}</h2>
+
+              <div className="mb-5 grid grid-cols-2 gap-3">
+                <ResultCard label={messages.resultados.neto} value={formatearMoneda(resultado.neto)} highlight />
+                <ResultCard label={messages.resultados.netoPorHora} value={formatearMoneda(resultado.netoPorHora)} highlight />
+                <ResultCard label={messages.resultados.netoPorKm} value={formatearMoneda(resultado.netoPorKm)} />
+                <ResultCard label={messages.resultados.costoPorKm} value={formatearMoneda(resultado.costoPorKm)} />
+                <ResultCard label={messages.resultados.margenPct} value={formatearPorcentaje(resultado.margenPct)} />
+                <ResultCard label={messages.resultados.puntoEquilibrioHora} value={formatearMoneda(resultado.puntoEquilibrioHora)} />
               </div>
-            </div>
 
-            <div className="space-y-4">{EXPENSE_FIELDS.map(renderField)}</div>
-          </section>
-
-          <div className="flex gap-3">
-            <button
-              type="submit"
-              className="flex-1 rounded-xl bg-blue-600 px-4 py-4 text-lg font-semibold text-white shadow hover:bg-blue-700 active:bg-blue-800"
-            >
-              {messages.buttons.calcular}
-            </button>
-            <button
-              type="button"
-              onClick={handleLimpiar}
-              className="rounded-xl bg-gray-200 px-4 py-4 text-lg font-semibold text-gray-700 shadow hover:bg-gray-300 active:bg-gray-400"
-            >
-              {messages.buttons.limpiar}
-            </button>
-          </div>
-        </form>
-
-        {resultado && (
-          <section className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
-            <h2 className="mb-4 text-lg font-semibold">{messages.sections.resultados}</h2>
-
-            <div className="mb-4 grid grid-cols-2 gap-3">
-              <ResultCard label={messages.resultados.neto} value={formatearMoneda(resultado.neto)} highlight />
-              <ResultCard label={messages.resultados.netoPorHora} value={formatearMoneda(resultado.netoPorHora)} highlight />
-              <ResultCard label={messages.resultados.netoPorKm} value={formatearMoneda(resultado.netoPorKm)} />
-              <ResultCard label={messages.resultados.costoPorKm} value={formatearMoneda(resultado.costoPorKm)} />
-              <ResultCard label={messages.resultados.margenPct} value={formatearPorcentaje(resultado.margenPct)} />
-              <ResultCard label={messages.resultados.puntoEquilibrioHora} value={formatearMoneda(resultado.puntoEquilibrioHora)} />
-            </div>
-
-            <div className="rounded-xl bg-gray-100 p-4">
-              <h3 className="mb-2 text-sm font-semibold text-gray-700">
-                {messages.resultados.desglose}
-              </h3>
-              <div className="space-y-1 text-sm">
-                <BreakdownRow label={messages.resultados.ingresoTotal} value={resultado.ingresoTotal} />
-                <BreakdownRow label={messages.resultados.gasolina} value={resultado.gasolina} />
-                <BreakdownRow label={messages.resultados.gastosFijos} value={resultado.gastosFijos} />
-                <BreakdownRow label={messages.resultados.imprevistos} value={resultado.imprevistos} />
-                <BreakdownRow label={messages.resultados.otrosGastos} value={resultado.otrosGastos} />
-                <BreakdownRow label={messages.resultados.costoTotal} value={resultado.costoTotal} />
+              <div className="rounded-2xl border border-dashed border-line bg-white/[0.03] p-4">
+                <h3 className="mb-3 text-sm font-semibold text-fg">{messages.resultados.desglose}</h3>
+                <div className="space-y-2 text-sm">
+                  <BreakdownRow label={messages.resultados.ingresoTotal} value={resultado.ingresoTotal} />
+                  <BreakdownRow label={messages.resultados.gasolina} value={resultado.gasolina} />
+                  <BreakdownRow label={messages.resultados.gastosFijos} value={resultado.gastosFijos} />
+                  <BreakdownRow label={messages.resultados.imprevistos} value={resultado.imprevistos} />
+                  <BreakdownRow label={messages.resultados.otrosGastos} value={resultado.otrosGastos} />
+                  <BreakdownRow label={messages.resultados.costoTotal} value={resultado.costoTotal} />
+                </div>
               </div>
-            </div>
-          </section>
-        )}
-      </div>
-    </main>
+            </section>
+          )}
+        </div>
+      </main>
+    </div>
   );
 }
 
@@ -300,9 +309,9 @@ function ResultCard({
   highlight?: boolean;
 }) {
   return (
-    <div className={`rounded-xl p-3 text-center ${highlight ? "bg-blue-50" : "bg-gray-50"}`}>
-      <p className="text-xs text-gray-600">{label}</p>
-      <p className={`mt-1 font-bold ${highlight ? "text-blue-700" : "text-gray-900"}`}>{value}</p>
+    <div className={`rounded-2xl p-3 text-center ${highlight ? "bg-emerald-400/10" : "bg-white/5"}`}>
+      <p className="text-xs text-muted">{label}</p>
+      <p className={`mt-1 text-lg font-bold ${highlight ? "text-emerald-300" : "text-fg"}`}>{value}</p>
     </div>
   );
 }
@@ -310,8 +319,8 @@ function ResultCard({
 function BreakdownRow({ label, value }: { label: string; value: number }) {
   return (
     <div className="flex justify-between">
-      <span className="text-gray-600">{label}</span>
-      <span className="font-medium text-gray-900">
+      <span className="text-muted">{label}</span>
+      <span className="font-medium text-fg">
         ${redondear(value).toLocaleString("es-MX")}
       </span>
     </div>
