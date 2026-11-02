@@ -44,7 +44,8 @@ const GAS_ESTIMATE_FIELDS: FieldDef[] = [
   { key: "precioLitro", label: messages.labels.precioLitro, unit: messages.units.pesosPorLitro, required: true },
 ];
 
-function parseNumber(value: string): number | null {
+function parseNumber(value: string | undefined | null): number | null {
+  if (value == null) return null;
   const trimmed = value.trim().replace(/,/g, "");
   if (trimmed === "") return null;
   const parsed = Number(trimmed);
