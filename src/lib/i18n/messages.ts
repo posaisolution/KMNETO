@@ -3,48 +3,103 @@ export const messages = {
     title: 'KmNeto',
     subtitle: 'Calcula cuánto ganas realmente como chofer de plataformas.',
   },
+
+  nav: {
+    inicio: 'Inicio',
+    queEs: 'Qué es',
+    comoFunciona: 'Cómo funciona',
+    preguntas: 'Preguntas',
+    calcular: 'Calcular',
+  },
+
   landing: {
-    hero: {
-      headline: '¿Cuánto te queda realmente al volante?',
-      subheadline:
-        'KmNeto calcula tu ganancia neta después de gasolina, mantenimiento, depreciación y gastos fijos. Sin sorpresas.',
-      cta: 'Calcular mi ganancia',
+    pill: 'Para choferes de Uber, DiDi e inDrive',
+    headline: 'Descubre cuánto te queda realmente al volante.',
+    subheadline:
+      'KmNeto suma gasolina, renta, imprevistos y gastos del día para mostrarte tu ganancia neta. Sin sorpresas, sin adivinar.',
+    ctaPrimary: 'Calcular mi ganancia',
+    ctaSecondary: 'Ver cómo funciona',
+    stats: [
+      { value: '60s', label: 'Tiempo para calcular' },
+      { value: '100%', label: 'Gratis' },
+      { value: 'MXN', label: 'Pesos mexicanos' },
+    ],
+    sampleCard: {
+      title: 'Resumen de tu jornada',
+      neto: 'Neto del día',
+      porHora: 'Neto por hora',
+      porKm: 'Neto por km',
     },
+    marquee: [
+      'Gasolina',
+      'Renta',
+      'Imprevistos',
+      'Propinas',
+      'Neto por hora',
+      'Costo por km',
+      'Margen',
+      'Punto de equilibrio',
+    ],
     valueProps: {
-      title: 'Porque lo que ves en la app no es lo que ganas',
+      title: 'Porque lo que la app muestra no es lo que ganas',
       items: [
         {
           title: 'Suma todos tus costos',
           description:
-            'Gasolina, mantenimiento, depreciación del auto, gastos fijos e imprevistos. Nada se queda fuera.',
+            'Gasolina, renta, llanta, grúa, multa, alimentación y recarga. Nada se queda fuera.',
         },
         {
           title: 'Descubre tu ganancia real',
           description:
-            'Conoce cuánto ganas por hora, por kilómetro y cuál es tu margen real de utilidad.',
+            'Ve cuánto ganas por hora, por kilómetro y cuál es tu margen real.',
         },
         {
-          title: 'Toma mejores decisiones',
+          title: 'Decide mejor',
           description:
-            'Identifica si te conviene salir a manejar hoy o si estar conectado esas horas te está dejando menos de lo que crees.',
+            'Saber tu punto de equilibrio te dice si vale la pena salir a manejar hoy.',
         },
       ],
     },
     steps: {
       title: 'Cómo funciona',
       items: [
-        { title: '1. Captura tu auto', description: 'Rendimiento, gastos fijos y datos del vehículo. Solo una vez.' },
-        { title: '2. Ingresa tu día', description: 'Horas, kilómetros e ingreso que te muestra la plataforma.' },
-        { title: '3. Revisa tu neto', description: 'Descubre cuánto ganaste realmente y cuánto te cuesta cada kilómetro.' },
+        { title: 'Captura tu día', description: 'Horas, kilómetros e ingreso que te muestra la plataforma.' },
+        { title: 'Agrega tus gastos', description: 'Gasolina, renta del período, imprevistos y otros gastos.' },
+        { title: 'Revisa tu neto', description: 'Conoce cuánto ganaste de verdad y cuánto cuesta cada kilómetro.' },
+      ],
+    },
+    faq: {
+      title: 'Preguntas frecuentes',
+      items: [
+        {
+          question: '¿Es gratis?',
+          answer: 'Sí. El cálculo básico es gratuito y no necesitas registrarte.',
+        },
+        {
+          question: '¿Mis datos se guardan?',
+          answer: 'No. Por ahora todo se calcula en tu celular; no guardamos información en servidores.',
+        },
+        {
+          question: '¿Puedo calcular una semana?',
+          answer: 'Sí. Solo ingresa los totales del período que quieras revisar.',
+        },
+        {
+          question: '¿Qué plataformas sirven?',
+          answer: 'Uber, DiDi, inDrive y cualquier otra donde manejes con tu auto.',
+        },
       ],
     },
     finalCta: {
-      title: 'Deja de adivinar tus ganancias',
-      description: 'En menos de 60 segundos sabrás si tu jornada realmente rindió.',
+      title: 'Deja de adivinar cuánto ganas',
+      description: 'En menos de un minuto sabrás si tu jornada realmente rindió.',
       cta: 'Empezar a calcular',
     },
-    footer: 'Hecho para choferes de plataformas en México.',
+    footer: {
+      description: 'Calculadora de rentabilidad real para choferes de plataformas en México.',
+      copyright: 'Hecho para choferes que quieren saber sus números de verdad.',
+    },
   },
+
   sections: {
     periodo: 'El período',
     gastos: 'Tus gastos',
