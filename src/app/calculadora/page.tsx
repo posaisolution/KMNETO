@@ -144,8 +144,8 @@ export default function CalculadoraPage() {
 
   const inputClass = (hasError: boolean) =>
     [
-      "w-full rounded-xl border bg-white px-4 py-3.5 text-lg text-bg shadow-sm outline-none transition",
-      "focus:border-emerald-400 focus:ring-2 focus:ring-emerald-400/20",
+      "w-full rounded-xl border bg-surface-2 px-4 py-3.5 text-lg tabular-nums text-fg outline-none transition",
+      "focus:border-gain focus:bg-surface focus:ring-2 focus:ring-gain/20",
       hasError ? "border-danger" : "border-line",
     ].join(" ");
 
@@ -180,16 +180,11 @@ export default function CalculadoraPage() {
 
   return (
     <div className="relative min-h-screen">
-      <div className="aurora" aria-hidden="true">
-        <span className="a1" />
-        <span className="a2" />
-        <span className="a3" />
-      </div>
-      <div className="grid-lines" aria-hidden="true" />
+      <div className="aurora" aria-hidden="true" />
 
-      <header className="relative z-10 border-b border-line bg-bg/80 px-5 py-4 backdrop-blur">
+      <header className="relative z-10 border-b border-line bg-surface/90 px-5 py-4 backdrop-blur">
         <div className="mx-auto flex max-w-xl items-center justify-between">
-          <Link href="/" className="text-sm font-semibold text-fg transition hover:text-emerald-300">
+          <Link href="/" className="text-sm font-semibold text-muted transition hover:text-gain">
             ← Volver
           </Link>
           <span className="text-lg font-bold text-fg">{messages.app.title}</span>
@@ -207,15 +202,15 @@ export default function CalculadoraPage() {
           </header>
 
           <form onSubmit={handleCalcular} className="space-y-5">
-            <section className="rounded-3xl border border-line bg-surface p-6 shadow-xl shadow-black/30">
+            <section className="rounded-3xl border border-line bg-surface p-6 shadow-sm">
               <h2 className="mb-5 text-lg font-semibold text-fg">{messages.sections.periodo}</h2>
               <div className="space-y-4">{PERIOD_FIELDS.map(renderField)}</div>
             </section>
 
-            <section className="rounded-3xl border border-line bg-surface p-6 shadow-xl shadow-black/30">
+            <section className="rounded-3xl border border-line bg-surface p-6 shadow-sm">
               <h2 className="mb-5 text-lg font-semibold text-fg">{messages.sections.gastos}</h2>
 
-              <div className="mb-5 rounded-2xl border border-line-strong bg-white/[0.03] p-4">
+              <div className="mb-5 rounded-2xl border border-line bg-surface-2 p-4">
                 <span className="block text-sm font-medium text-fg">Gasolina</span>
                 <div className="mt-3 flex gap-2">
                   <button
@@ -223,8 +218,8 @@ export default function CalculadoraPage() {
                     onClick={() => setGasMode("real")}
                     className={`flex-1 rounded-xl px-3 py-2.5 text-sm font-semibold transition ${
                       gasMode === "real"
-                        ? "bg-gradient-to-r from-blue-600 to-emerald-500 text-bg"
-                        : "border border-line bg-white/5 text-fg hover:bg-white/10"
+                        ? "bg-fg text-white shadow-sm"
+                        : "border border-line bg-surface text-fg hover:bg-bg-soft"
                     }`}
                   >
                     Gasto real
@@ -234,8 +229,8 @@ export default function CalculadoraPage() {
                     onClick={() => setGasMode("estimado")}
                     className={`flex-1 rounded-xl px-3 py-2.5 text-sm font-semibold transition ${
                       gasMode === "estimado"
-                        ? "bg-gradient-to-r from-blue-600 to-emerald-500 text-bg"
-                        : "border border-line bg-white/5 text-fg hover:bg-white/10"
+                        ? "bg-fg text-white shadow-sm"
+                        : "border border-line bg-surface text-fg hover:bg-bg-soft"
                     }`}
                   >
                     Estimar
@@ -254,14 +249,14 @@ export default function CalculadoraPage() {
             <div className="flex gap-3">
               <button
                 type="submit"
-                className="flex-1 rounded-xl bg-gradient-to-r from-blue-600 to-emerald-500 px-4 py-4 text-lg font-bold text-bg shadow-lg shadow-emerald-500/25 transition hover:-translate-y-0.5 hover:shadow-emerald-500/40"
+                className="flex-1 rounded-xl bg-fg px-4 py-4 text-lg font-bold text-white shadow-md transition hover:-translate-y-0.5 hover:bg-slate-800 hover:shadow-lg"
               >
                 {messages.buttons.calcular}
               </button>
               <button
                 type="button"
                 onClick={handleLimpiar}
-                className="rounded-xl border border-line-strong bg-white/5 px-5 py-4 text-lg font-semibold text-fg transition hover:bg-white/10"
+                className="rounded-xl border border-line-strong bg-surface px-5 py-4 text-lg font-semibold text-fg transition hover:bg-surface-2"
               >
                 {messages.buttons.limpiar}
               </button>
@@ -269,27 +264,43 @@ export default function CalculadoraPage() {
           </form>
 
           {resultado && (
-            <section className="rounded-3xl border border-line bg-surface p-6 shadow-xl shadow-black/30">
+            <section className="rounded-3xl border border-line bg-surface p-6 shadow-sm">
               <h2 className="mb-5 text-lg font-semibold text-fg">{messages.sections.resultados}</h2>
 
+              <div
+                className={`mb-4 rounded-2xl p-5 ${
+                  resultado.neto >= 0 ? "bg-gain-soft" : "bg-danger-soft"
+                }`}
+              >
+                <p className="text-sm font-medium text-muted">{messages.resultados.neto}</p>
+                <p
+                  className={`mt-1 text-4xl font-extrabold tabular-nums ${
+                    resultado.neto >= 0 ? "text-gain" : "text-danger"
+                  }`}
+                >
+                  {formatearMoneda(resultado.neto)}
+                </p>
+              </div>
+
               <div className="mb-5 grid grid-cols-2 gap-3">
-                <ResultCard label={messages.resultados.neto} value={formatearMoneda(resultado.neto)} highlight />
-                <ResultCard label={messages.resultados.netoPorHora} value={formatearMoneda(resultado.netoPorHora)} highlight />
+                <ResultCard label={messages.resultados.netoPorHora} value={formatearMoneda(resultado.netoPorHora)} />
                 <ResultCard label={messages.resultados.netoPorKm} value={formatearMoneda(resultado.netoPorKm)} />
                 <ResultCard label={messages.resultados.costoPorKm} value={formatearMoneda(resultado.costoPorKm)} />
                 <ResultCard label={messages.resultados.margenPct} value={formatearPorcentaje(resultado.margenPct)} />
                 <ResultCard label={messages.resultados.puntoEquilibrioHora} value={formatearMoneda(resultado.puntoEquilibrioHora)} />
               </div>
 
-              <div className="rounded-2xl border border-dashed border-line bg-white/[0.03] p-4">
+              <div className="rounded-2xl border border-dashed border-line-strong p-4">
                 <h3 className="mb-3 text-sm font-semibold text-fg">{messages.resultados.desglose}</h3>
                 <div className="space-y-2 text-sm">
-                  <BreakdownRow label={messages.resultados.ingresoTotal} value={resultado.ingresoTotal} />
-                  <BreakdownRow label={messages.resultados.gasolina} value={resultado.gasolina} />
-                  <BreakdownRow label={messages.resultados.gastosFijos} value={resultado.gastosFijos} />
-                  <BreakdownRow label={messages.resultados.imprevistos} value={resultado.imprevistos} />
-                  <BreakdownRow label={messages.resultados.otrosGastos} value={resultado.otrosGastos} />
-                  <BreakdownRow label={messages.resultados.costoTotal} value={resultado.costoTotal} />
+                  <BreakdownRow tone="gain" label={messages.resultados.ingresoTotal} value={resultado.ingresoTotal} />
+                  <BreakdownRow tone="cost" label={messages.resultados.gasolina} value={resultado.gasolina} />
+                  <BreakdownRow tone="cost" label={messages.resultados.gastosFijos} value={resultado.gastosFijos} />
+                  <BreakdownRow tone="cost" label={messages.resultados.imprevistos} value={resultado.imprevistos} />
+                  <BreakdownRow tone="cost" label={messages.resultados.otrosGastos} value={resultado.otrosGastos} />
+                  <div className="border-t border-line pt-2">
+                    <BreakdownRow tone="total" label={messages.resultados.costoTotal} value={resultado.costoTotal} />
+                  </div>
                 </div>
               </div>
             </section>
@@ -300,28 +311,35 @@ export default function CalculadoraPage() {
   );
 }
 
-function ResultCard({
-  label,
-  value,
-  highlight = false,
-}: {
-  label: string;
-  value: string;
-  highlight?: boolean;
-}) {
+function ResultCard({ label, value }: { label: string; value: string }) {
   return (
-    <div className={`rounded-2xl p-3 text-center ${highlight ? "bg-emerald-400/10" : "bg-white/5"}`}>
+    <div className="rounded-2xl border border-line bg-surface-2 p-3 text-center">
       <p className="text-xs text-muted">{label}</p>
-      <p className={`mt-1 text-lg font-bold ${highlight ? "text-emerald-300" : "text-fg"}`}>{value}</p>
+      <p className="mt-1 text-lg font-bold tabular-nums text-fg">{value}</p>
     </div>
   );
 }
 
-function BreakdownRow({ label, value }: { label: string; value: number }) {
+function BreakdownRow({
+  label,
+  value,
+  tone = "neutral",
+}: {
+  label: string;
+  value: number;
+  tone?: "gain" | "cost" | "total" | "neutral";
+}) {
+  const valueClass = {
+    gain: "text-gain",
+    cost: "text-gas",
+    total: "text-fg",
+    neutral: "text-fg",
+  }[tone];
+
   return (
     <div className="flex justify-between">
       <span className="text-muted">{label}</span>
-      <span className="font-medium text-fg">
+      <span className={`font-medium tabular-nums ${valueClass}`}>
         ${redondear(value).toLocaleString("es-MX")}
       </span>
     </div>
