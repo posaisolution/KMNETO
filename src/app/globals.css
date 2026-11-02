@@ -15,6 +15,7 @@
   --gain: #0e7c4a;
   --gain-soft: #e8f5ee;
   --gas: #b45309;
+  --gas-soft: #fef3e2;
   --danger: #b91c1c;
   --danger-soft: #fdecec;
 }
@@ -32,6 +33,7 @@
   --color-gain: var(--gain);
   --color-gain-soft: var(--gain-soft);
   --color-gas: var(--gas);
+  --color-gas-soft: var(--gas-soft);
   --color-danger: var(--danger);
   --color-danger-soft: var(--danger-soft);
   --font-sans: var(--font-geist-sans);
