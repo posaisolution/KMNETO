@@ -102,8 +102,13 @@ export const messages = {
 
   sections: {
     periodo: 'El período',
+    perfil: 'Tu auto',
     gastos: 'Tus gastos',
     resultados: 'Resultados',
+  },
+  periodo: {
+    dia: 'Un día',
+    semana: 'Una semana',
   },
   labels: {
     viajes: 'Viajes del período',
@@ -111,10 +116,16 @@ export const messages = {
     km: 'Kilómetros recorridos',
     ingresoPlataforma: 'Ingreso de la plataforma',
     propinasYEfectivo: 'Propinas y efectivo',
+    diasTrabajados: 'Días trabajados en el período',
     gastoRealGasolina: 'Gasto real en gasolina',
     rendimientoKmPorLitro: 'Rendimiento del auto',
     precioLitro: 'Precio de la gasolina',
-    gastosFijosPeriodo: 'Gastos fijos del período',
+    provisionMantenimientoPorKm: 'Mantenimiento por kilómetro',
+    valorAuto: 'Valor de tu auto',
+    valorResidualEstimado: 'Valor al que lo venderías',
+    kmVidaUtilRestante: 'Kilómetros que le quedan',
+    gastosFijosMensuales: 'Renta y gastos fijos al mes',
+    diasTrabajadosPorMes: 'Días que trabajas al mes',
     imprevistos: 'Imprevistos',
     otrosGastosPeriodo: 'Otros gastos del período',
   },
@@ -131,6 +142,14 @@ export const messages = {
   placeholders: {
     number: '0',
     optional: 'Opcional',
+    diasSemana: 'Ej. 6',
+  },
+  hints: {
+    perfilEjemplo:
+      'Valores de ejemplo: ajústalos a tu auto antes de calcular.',
+    gasolinaEstimada:
+      'Se calcula con el rendimiento y el precio de la gasolina de tu auto.',
+    fijosPorPeriodo: 'Te toca por período:',
   },
   buttons: {
     calcular: 'Calcular',
@@ -149,7 +168,10 @@ export const messages = {
     costoTotal: 'Costo total',
     desglose: 'Desglose de costos',
     gasolina: 'Gasolina',
+    mantenimiento: 'Mantenimiento',
+    depreciacion: 'Depreciación',
     gastosFijos: 'Gastos fijos',
+    gastosFijosProrrateados: 'Gastos fijos (prorrateado)',
     imprevistos: 'Imprevistos',
     otrosGastos: 'Otros gastos',
     comoSeCalcula: 'Cómo se calcula',
@@ -175,5 +197,6 @@ export const messages = {
     required: 'Completa este campo',
     negative: 'El valor no puede ser negativo',
     invalidNumber: 'Escribe un número válido',
+    positive: 'Debe ser mayor a 0',
   },
 };
