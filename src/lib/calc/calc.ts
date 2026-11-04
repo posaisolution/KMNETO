@@ -31,6 +31,9 @@ export function calcularPeriodo(entrada: EntradaPeriodo): ResultadoPeriodo {
     entrada.ingresoPlataforma + (entrada.propinasYEfectivo ?? 0);
   const neto = ingresoTotal - costoTotal;
 
+  const viajes = entrada.viajes;
+  const horas = entrada.horasConectado ?? 0;
+
   return {
     gasolina,
     gastosFijos,
@@ -39,12 +42,12 @@ export function calcularPeriodo(entrada: EntradaPeriodo): ResultadoPeriodo {
     costoTotal,
     ingresoTotal,
     neto,
-    netoPorHora:
-      entrada.horasConectado === 0 ? null : neto / entrada.horasConectado,
+    netoPorViaje: viajes === 0 ? null : neto / viajes,
+    puntoEquilibrioViaje: viajes === 0 ? null : costoTotal / viajes,
+    netoPorHora: horas === 0 ? null : neto / horas,
     netoPorKm: entrada.km === 0 ? null : neto / entrada.km,
     costoPorKm: entrada.km === 0 ? null : costoTotal / entrada.km,
     margenPct: ingresoTotal === 0 ? null : neto / ingresoTotal,
-    puntoEquilibrioHora:
-      entrada.horasConectado === 0 ? null : costoTotal / entrada.horasConectado,
+    puntoEquilibrioHora: horas === 0 ? null : costoTotal / horas,
   };
 }

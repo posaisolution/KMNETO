@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import { calcularPeriodo, EntradaPeriodo, ResultadoPeriodo } from "@/lib/calc";
 import { messages } from "@/lib/i18n/messages";
+import { explicarMetrica, MetricaId } from "@/lib/i18n/explicaciones";
 import {
   formatearMoneda,
   formatearPorcentaje,
@@ -20,7 +21,8 @@ type FieldDef = {
 };
 
 const PERIOD_FIELDS: FieldDef[] = [
-  { key: "horasConectado", label: messages.labels.horasConectado, unit: messages.units.horas, required: true },
+  { key: "viajes", label: messages.labels.viajes, unit: messages.units.viajes, required: true },
+  { key: "horasConectado", label: messages.labels.horasConectado, unit: messages.units.horas },
   { key: "km", label: messages.labels.km, unit: messages.units.km, required: true },
   { key: "ingresoPlataforma", label: messages.labels.ingresoPlataforma, unit: messages.units.pesos, required: true },
   { key: "propinasYEfectivo", label: messages.labels.propinasYEfectivo, unit: messages.units.pesos },
@@ -44,6 +46,11 @@ const GAS_ESTIMATE_FIELDS: FieldDef[] = [
   { key: "precioLitro", label: messages.labels.precioLitro, unit: messages.units.pesosPorLitro, required: true },
 ];
 
+type Calculo = {
+  entrada: EntradaPeriodo;
+  resultado: ResultadoPeriodo;
+};
+
 function parseNumber(value: string | undefined | null): number | null {
   if (value == null) return null;
   const trimmed = value.trim().replace(/,/g, "");
@@ -57,7 +64,7 @@ export default function CalculadoraPage() {
   const [values, setValues] = useState<Record<string, string>>({});
   const [touched, setTouched] = useState<Record<string, boolean>>({});
   const [gasMode, setGasMode] = useState<GasMode>("real");
-  const [resultado, setResultado] = useState<ResultadoPeriodo | null>(null);
+  const [calculo, setCalculo] = useState<Calculo | null>(null);
 
   const allFields = useMemo(
     () => [
@@ -111,7 +118,8 @@ export default function CalculadoraPage() {
     if (Object.keys(errors).length > 0) return;
 
     const entrada: EntradaPeriodo = {
-      horasConectado: parseNumber(values.horasConectado) ?? 0,
+      viajes: parseNumber(values.viajes) ?? 0,
+      horasConectado: parseNumber(values.horasConectado) ?? undefined,
       km: parseNumber(values.km) ?? 0,
       ingresoPlataforma: parseNumber(values.ingresoPlataforma) ?? 0,
       propinasYEfectivo: parseNumber(values.propinasYEfectivo) ?? undefined,
@@ -133,13 +141,13 @@ export default function CalculadoraPage() {
       ];
     }
 
-    setResultado(calcularPeriodo(entrada));
+    setCalculo({ entrada, resultado: calcularPeriodo(entrada) });
   };
 
   const handleLimpiar = () => {
     setValues({});
     setTouched({});
-    setResultado(null);
+    setCalculo(null);
   };
 
   const inputClass = (hasError: boolean) =>
@@ -263,47 +271,11 @@ export default function CalculadoraPage() {
             </div>
           </form>
 
-          {resultado && (
-            <section className="rounded-3xl border border-line bg-surface p-6 shadow-sm">
-              <h2 className="mb-5 text-lg font-semibold text-fg">{messages.sections.resultados}</h2>
-
-              <div
-                className={`mb-4 rounded-2xl p-5 ${
-                  resultado.neto >= 0 ? "bg-gain-soft" : "bg-danger-soft"
-                }`}
-              >
-                <p className="text-sm font-medium text-muted">{messages.resultados.neto}</p>
-                <p
-                  className={`mt-1 text-4xl font-extrabold tabular-nums ${
-                    resultado.neto >= 0 ? "text-gain" : "text-danger"
-                  }`}
-                >
-                  {formatearMoneda(resultado.neto)}
-                </p>
-              </div>
-
-              <div className="mb-5 grid grid-cols-2 gap-3">
-                <ResultCard label={messages.resultados.netoPorHora} value={formatearMoneda(resultado.netoPorHora)} />
-                <ResultCard label={messages.resultados.netoPorKm} value={formatearMoneda(resultado.netoPorKm)} />
-                <ResultCard label={messages.resultados.costoPorKm} value={formatearMoneda(resultado.costoPorKm)} />
-                <ResultCard label={messages.resultados.margenPct} value={formatearPorcentaje(resultado.margenPct)} />
-                <ResultCard label={messages.resultados.puntoEquilibrioHora} value={formatearMoneda(resultado.puntoEquilibrioHora)} />
-              </div>
-
-              <div className="rounded-2xl border border-dashed border-line-strong p-4">
-                <h3 className="mb-3 text-sm font-semibold text-fg">{messages.resultados.desglose}</h3>
-                <div className="space-y-2 text-sm">
-                  <BreakdownRow tone="gain" label={messages.resultados.ingresoTotal} value={resultado.ingresoTotal} />
-                  <BreakdownRow tone="cost" label={messages.resultados.gasolina} value={resultado.gasolina} />
-                  <BreakdownRow tone="cost" label={messages.resultados.gastosFijos} value={resultado.gastosFijos} />
-                  <BreakdownRow tone="cost" label={messages.resultados.imprevistos} value={resultado.imprevistos} />
-                  <BreakdownRow tone="cost" label={messages.resultados.otrosGastos} value={resultado.otrosGastos} />
-                  <div className="border-t border-line pt-2">
-                    <BreakdownRow tone="total" label={messages.resultados.costoTotal} value={resultado.costoTotal} />
-                  </div>
-                </div>
-              </div>
-            </section>
+          {calculo && (
+            <ResultadosSection
+              entrada={calculo.entrada}
+              resultado={calculo.resultado}
+            />
           )}
         </div>
       </main>
@@ -311,11 +283,166 @@ export default function CalculadoraPage() {
   );
 }
 
-function ResultCard({ label, value }: { label: string; value: string }) {
+type MetricaCard = {
+  id: MetricaId;
+  label: string;
+  value: string;
+};
+
+function ResultadosSection({
+  entrada,
+  resultado,
+}: {
+  entrada: EntradaPeriodo;
+  resultado: ResultadoPeriodo;
+}) {
+  const [metricaActiva, setMetricaActiva] = useState<MetricaId | null>(null);
+
+  const metricas: MetricaCard[] = [
+    {
+      id: "netoPorViaje",
+      label: messages.resultados.netoPorViaje,
+      value: formatearMoneda(resultado.netoPorViaje),
+    },
+    {
+      id: "puntoEquilibrioViaje",
+      label: messages.resultados.puntoEquilibrioViaje,
+      value: formatearMoneda(resultado.puntoEquilibrioViaje),
+    },
+    {
+      id: "netoPorKm",
+      label: messages.resultados.netoPorKm,
+      value: formatearMoneda(resultado.netoPorKm),
+    },
+    {
+      id: "costoPorKm",
+      label: messages.resultados.costoPorKm,
+      value: formatearMoneda(resultado.costoPorKm),
+    },
+    {
+      id: "margenPct",
+      label: messages.resultados.margenPct,
+      value: formatearPorcentaje(resultado.margenPct),
+    },
+  ];
+
+  if ((entrada.horasConectado ?? 0) > 0) {
+    metricas.push(
+      {
+        id: "netoPorHora",
+        label: messages.resultados.netoPorHora,
+        value: formatearMoneda(resultado.netoPorHora),
+      },
+      {
+        id: "puntoEquilibrioHora",
+        label: messages.resultados.puntoEquilibrioHora,
+        value: formatearMoneda(resultado.puntoEquilibrioHora),
+      }
+    );
+  }
+
+  const activa = metricas.find((metrica) => metrica.id === metricaActiva);
+  const explicacion = metricaActiva
+    ? explicarMetrica(metricaActiva, entrada, resultado)
+    : null;
+
   return (
-    <div className="rounded-2xl border border-line bg-surface-2 p-3 text-center">
-      <p className="text-xs text-muted">{label}</p>
-      <p className="mt-1 text-lg font-bold tabular-nums text-fg">{value}</p>
+    <section className="rounded-3xl border border-line bg-surface p-6 shadow-sm">
+      <h2 className="mb-5 text-lg font-semibold text-fg">{messages.sections.resultados}</h2>
+
+      <div
+        className={`mb-4 rounded-2xl p-5 ${
+          resultado.neto >= 0 ? "bg-gain-soft" : "bg-danger-soft"
+        }`}
+      >
+        <p className="text-sm font-medium text-muted">{messages.resultados.neto}</p>
+        <p
+          className={`mt-1 text-4xl font-extrabold tabular-nums ${
+            resultado.neto >= 0 ? "text-gain" : "text-danger"
+          }`}
+        >
+          {formatearMoneda(resultado.neto)}
+        </p>
+      </div>
+
+      <div className="mb-5 grid grid-cols-2 gap-3">
+        {metricas.map((metrica) => (
+          <MetricCard
+            key={metrica.id}
+            metrica={metrica}
+            activa={metrica.id === metricaActiva}
+            onToggle={() =>
+              setMetricaActiva((previa) =>
+                previa === metrica.id ? null : metrica.id
+              )
+            }
+          />
+        ))}
+      </div>
+
+      {activa && explicacion && (
+        <div
+          id="explicacion-metrica"
+          role="region"
+          aria-label={activa.label}
+          className="mb-5 rounded-2xl border border-line-strong bg-surface p-4"
+        >
+          <p className="text-xs font-semibold uppercase tracking-wide text-dim">
+            {messages.resultados.comoSeCalcula}
+          </p>
+          <p className="mt-2 text-sm text-fg">{explicacion.que}</p>
+          <p className="mt-2 rounded-xl bg-surface-2 px-3 py-2 font-mono text-xs text-fg">
+            {explicacion.formula}
+          </p>
+        </div>
+      )}
+
+      <div className="rounded-2xl border border-dashed border-line-strong p-4">
+        <h3 className="mb-3 text-sm font-semibold text-fg">{messages.resultados.desglose}</h3>
+        <div className="space-y-2 text-sm">
+          <BreakdownRow tone="gain" label={messages.resultados.ingresoTotal} value={resultado.ingresoTotal} />
+          <BreakdownRow tone="cost" label={messages.resultados.gasolina} value={resultado.gasolina} />
+          <BreakdownRow tone="cost" label={messages.resultados.gastosFijos} value={resultado.gastosFijos} />
+          <BreakdownRow tone="cost" label={messages.resultados.imprevistos} value={resultado.imprevistos} />
+          <BreakdownRow tone="cost" label={messages.resultados.otrosGastos} value={resultado.otrosGastos} />
+          <div className="border-t border-line pt-2">
+            <BreakdownRow tone="total" label={messages.resultados.costoTotal} value={resultado.costoTotal} />
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function MetricCard({
+  metrica,
+  activa,
+  onToggle,
+}: {
+  metrica: MetricaCard;
+  activa: boolean;
+  onToggle: () => void;
+}) {
+  return (
+    <div
+      className={`rounded-2xl border p-3 text-center transition ${
+        activa ? "border-fg bg-surface" : "border-line bg-surface-2"
+      }`}
+    >
+      <div className="flex items-start justify-center gap-1">
+        <p className="text-xs text-muted">{metrica.label}</p>
+        <button
+          type="button"
+          onClick={onToggle}
+          aria-expanded={activa}
+          aria-controls="explicacion-metrica"
+          aria-label={`${messages.resultados.ayudaDe} ${metrica.label}`}
+          className="-mt-1 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-line-strong text-[11px] font-bold text-muted transition hover:border-fg hover:text-fg"
+        >
+          ?
+        </button>
+      </div>
+      <p className="mt-1 text-lg font-bold tabular-nums text-fg">{metrica.value}</p>
     </div>
   );
 }
