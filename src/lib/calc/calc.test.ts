@@ -160,6 +160,7 @@ const perfilHitoA: PerfilAuto = {
 };
 
 const entradaHitoA: EntradaPeriodo = {
+  viajes: 20,
   horasConectado: 10,
   km: 180,
   ingresoPlataforma: 1_400,
@@ -186,6 +187,8 @@ describe('caso calculado a mano del Hito A', () => {
 
     expect(r.costoTotal).toBeCloseTo(887.38, 2);
     expect(r.neto).toBeCloseTo(512.62, 2);
+    // 512.62 neto / 20 viajes
+    expect(r.netoPorViaje).toBeCloseTo(25.63, 2);
     expect(r.netoPorHora).toBeCloseTo(51.26, 2);
     expect(r.netoPorKm).toBeCloseTo(2.85, 2);
     expect(r.margenPct).toBeCloseTo(0.366, 3);
