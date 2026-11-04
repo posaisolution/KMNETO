@@ -25,8 +25,11 @@ describe('CalculadoraPage', () => {
 
     fireEvent.click(screen.getByRole('button', { name: /^calcular$/i }));
 
+    // Perfil de ejemplo: 180 km * $0.60/km = $108 mantenimiento,
+    // 180 km * $0.30/km = $54 depreciación, ($3,000 / 26) * 1 día = $115.38 fijos.
+    // Costo 350 + 108 + 54 + 115.38 = 627.38; neto 1,400 - 627.38 = 772.62.
     expect(screen.getByText(/ganancia neta/i)).toBeInTheDocument();
-    expect(screen.getByText(/\$1,050\.00/i)).toBeInTheDocument();
+    expect(screen.getByText(/\$772\.62/i)).toBeInTheDocument();
   });
 
   it('calcula gasolina estimada cuando se elige el modo estimado', () => {
@@ -43,10 +46,10 @@ describe('CalculadoraPage', () => {
 
     fireEvent.click(screen.getByRole('button', { name: /^calcular$/i }));
 
+    // 180 km / 12 km/l = 15 l * $24/l = $360 de gasolina.
+    // Costo 360 + 108 + 54 + 115.38 = 637.38; neto 1,400 - 637.38 = 762.62.
     expect(screen.getByText(/ganancia neta/i)).toBeInTheDocument();
-    // 180 km / 12 km/l = 15 l * $24/l = $360 de gasolina
-    // Neto = $1400 - $360 = $1040
-    expect(screen.getByText(/\$1,040\.00/i)).toBeInTheDocument();
+    expect(screen.getByText(/\$762\.62/i)).toBeInTheDocument();
   });
 
   it('muestra errores de validación cuando faltan campos requeridos', () => {
