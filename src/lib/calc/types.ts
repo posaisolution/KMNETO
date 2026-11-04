@@ -41,7 +41,16 @@ export type VentanaImprevistos = {
 export type OrigenGastosFijos = 'capturado' | 'prorrateado' | 'ninguno';
 
 export type EntradaPeriodo = {
-  horasConectado: number;
+  /**
+   * Trips completed in the period. Primary denominator for per-trip metrics.
+   */
+  viajes: number;
+
+  /**
+   * Hours online. Optional: per-hour metrics are only reported when provided.
+   */
+  horasConectado?: number;
+
   km: number;
   ingresoPlataforma: number;
   propinasYEfectivo?: number;
@@ -100,6 +109,8 @@ export type ResultadoPeriodo = {
   costoTotal: number;
   ingresoTotal: number;
   neto: number;
+  netoPorViaje: number | null;
+  puntoEquilibrioViaje: number | null;
   netoPorHora: number | null;
   netoPorKm: number | null;
   costoPorKm: number | null;

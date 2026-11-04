@@ -31,7 +31,8 @@ NO incluye todavía: login, pagos, historial, impuestos, integraciones con las p
 Todas las cantidades en pesos mexicanos (MXN). Los cálculos viven en **funciones puras** en `src/lib/calc/`, sin acceso a UI ni base de datos. Usar números decimales con cuidado (sin errores de punto flotante visibles: redondear solo al mostrar, nunca en pasos intermedios).
 
 ### Entradas de un período (día o semana)
-- `horasConectado`: horas con la app encendida
+- `viajes`: cantidad de viajes completados (denominador principal de las métricas por viaje)
+- `horasConectado`: opcional, horas con la app encendida (solo para métricas por hora)
 - `km`: kilómetros totales recorridos (incluyendo los vacíos)
 - `ingresoPlataforma`: lo que la app le muestra como ganancia (ver nota)
 - `propinasYEfectivo`: opcional
@@ -60,13 +61,15 @@ ingresoTotal        = ingresoPlataforma + propinasYEfectivo
 costoTotal          = gasolina + mantenimiento + depreciacion + fijosProrrateados + imprevistos
 neto                = ingresoTotal - costoTotal
 
-netoPorHora         = neto / horasConectado
+netoPorViaje        = neto / viajes
+netoPorHora         = neto / horasConectado        (null si no se capturan horas)
 netoPorKm           = neto / km
 costoPorKm          = costoTotal / km
 margenPct           = neto / ingresoTotal
-puntoEquilibrioHora = costoTotal / horasConectado    (lo mínimo que debe ganar por hora para no perder)
+puntoEquilibrioViaje = costoTotal / viajes         (lo mínimo que debe pagar un viaje para no perder)
+puntoEquilibrioHora = costoTotal / horasConectado  (lo mínimo que debe ganar por hora para no perder)
 ```
-Proteger divisiones entre cero (horas = 0, km = 0, ingreso = 0): devolver `null`, no `NaN` ni `Infinity`.
+Proteger divisiones entre cero (viajes = 0, horas = 0, km = 0, ingreso = 0): devolver `null`, no `NaN` ni `Infinity`.
 
 ### Imprevistos (llanta ponchada, falla, grúa, multa, etc.)
 Son gastos irregulares. Se registran con fecha, categoría y monto. Se muestran de **dos formas** que el usuario puede alternar:

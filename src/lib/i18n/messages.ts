@@ -111,6 +111,7 @@ export const messages = {
     semana: 'Una semana',
   },
   labels: {
+    viajes: 'Viajes del período',
     horasConectado: 'Horas conectado',
     km: 'Kilómetros recorridos',
     ingresoPlataforma: 'Ingreso de la plataforma',
@@ -135,6 +136,7 @@ export const messages = {
     pesos: '$',
     km: 'km',
     horas: 'hrs',
+    viajes: 'viajes',
     dias: 'días',
   },
   placeholders: {
@@ -155,6 +157,8 @@ export const messages = {
   },
   resultados: {
     neto: 'Ganancia neta',
+    netoPorViaje: 'Neto por viaje',
+    puntoEquilibrioViaje: 'Mínimo por viaje',
     netoPorHora: 'Neto por hora',
     netoPorKm: 'Neto por km',
     costoPorKm: 'Costo por km',
@@ -170,8 +174,24 @@ export const messages = {
     gastosFijosProrrateados: 'Gastos fijos (prorrateado)',
     imprevistos: 'Imprevistos',
     otrosGastos: 'Otros gastos',
-    historialInsuficiente:
-      'Aún no hay kilómetros de historial para suavizar imprevistos: se usaron los reales.',
+    comoSeCalcula: 'Cómo se calcula',
+    ayudaDe: 'Qué significa',
+  },
+  explicaciones: {
+    netoPorViaje:
+      'Lo que te queda limpio de cada viaje, ya descontando gasolina, gastos fijos, imprevistos y otros gastos.',
+    puntoEquilibrioViaje:
+      'Lo que te cuesta operar cada viaje. Si el viaje paga menos que esto, estás perdiendo dinero.',
+    netoPorHora:
+      'Tu ganancia limpia repartida entre las horas conectado. Sirve para comparar jornadas de distinta duración.',
+    puntoEquilibrioHora:
+      'Lo mínimo que necesitas ganar por hora para no perder dinero: es tu costo por cada hora conectado.',
+    netoPorKm:
+      'Ganancia limpia por cada kilómetro recorrido, contando también los kilómetros sin pasajero.',
+    costoPorKm:
+      'Cuánto te cuesta mover el auto cada kilómetro: gasolina, gastos fijos, imprevistos y otros gastos.',
+    margenPct:
+      'Qué parte de lo que entra por la plataforma se convierte en ganancia. Lo que falta se va en costos.',
   },
   errors: {
     required: 'Completa este campo',

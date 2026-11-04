@@ -11,6 +11,7 @@ import {
 import { EntradaPeriodo, PerfilAuto } from './types';
 
 const entradaBase: EntradaPeriodo = {
+  viajes: 40,
   horasConectado: 10,
   km: 180,
   ingresoPlataforma: 1_400,
@@ -77,6 +78,10 @@ describe('caso calculado a mano', () => {
     expect(r.costoTotal).toBeCloseTo(1_010, 2);
     expect(r.ingresoTotal).toBeCloseTo(1_400, 2);
     expect(r.neto).toBeCloseTo(390, 2);
+    // 390 neto / 40 viajes
+    expect(r.netoPorViaje).toBeCloseTo(9.75, 2);
+    // 1,010 costo / 40 viajes
+    expect(r.puntoEquilibrioViaje).toBeCloseTo(25.25, 2);
     expect(r.netoPorHora).toBeCloseTo(39, 2);
     expect(r.netoPorKm).toBeCloseTo(2.17, 2);
     expect(r.costoPorKm).toBeCloseTo(5.61, 2);
@@ -93,7 +98,22 @@ describe('caso calculado a mano', () => {
 
     expect(r.costoTotal).toBeCloseTo(660, 2);
     expect(r.neto).toBeCloseTo(740, 2);
+    // 740 neto / 40 viajes
+    expect(r.netoPorViaje).toBeCloseTo(18.5, 2);
     expect(r.netoPorHora).toBeCloseTo(74, 2);
+  });
+});
+
+describe('división entre viajes', () => {
+  it('devuelve null cuando viajes es 0', () => {
+    const r = calcularPeriodo({ ...entradaBase, viajes: 0 });
+    expect(r.netoPorViaje).toBeNull();
+    expect(r.puntoEquilibrioViaje).toBeNull();
+  });
+
+  it('calcula el neto por viaje con un solo viaje', () => {
+    const r = calcularPeriodo({ ...entradaBase, viajes: 1 });
+    expect(r.netoPorViaje).toBeCloseTo(390, 2);
   });
 });
 
@@ -102,6 +122,14 @@ describe('protección contra divisiones entre cero', () => {
     const r = calcularPeriodo({ ...entradaBase, horasConectado: 0 });
     expect(r.netoPorHora).toBeNull();
     expect(r.puntoEquilibrioHora).toBeNull();
+  });
+
+  it('devuelve null en métricas por hora cuando no se capturan horas', () => {
+    const r = calcularPeriodo({ ...entradaBase, horasConectado: undefined });
+    expect(r.netoPorHora).toBeNull();
+    expect(r.puntoEquilibrioHora).toBeNull();
+    // Las métricas por viaje no dependen de las horas.
+    expect(r.netoPorViaje).toBeCloseTo(9.75, 2);
   });
 
   it('devuelve null cuando km es 0', () => {

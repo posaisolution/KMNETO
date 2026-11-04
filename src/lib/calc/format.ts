@@ -25,3 +25,13 @@ export function formatearMoneda(
     maximumFractionDigits: decimales,
   })}`;
 }
+
+/**
+ * Formats a plain quantity (trips, hours, km) for display inside a formula.
+ * Rounds only for display, never for calculation.
+ */
+export function formatearCantidad(valor: number, decimales: number = 2): string {
+  return redondear(valor, decimales).toLocaleString('es-MX', {
+    maximumFractionDigits: decimales,
+  });
+}
