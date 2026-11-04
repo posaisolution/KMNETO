@@ -45,10 +45,10 @@ describe('CalculadoraPage', () => {
 
     fireEvent.click(screen.getByRole('button', { name: /^calcular$/i }));
 
-    // Neto 1,050 / 40 viajes = 26.25
-    expect(screen.getByText(/\$26\.25/i)).toBeInTheDocument();
-    // Costo 350 / 40 viajes = 8.75
-    expect(screen.getByText(/\$8\.75/i)).toBeInTheDocument();
+    // Neto 772.62 / 40 viajes = 19.32
+    expect(screen.getByText(/\$19\.32/i)).toBeInTheDocument();
+    // Costo 627.38 / 40 viajes = 15.68
+    expect(screen.getByText(/\$15\.68/i)).toBeInTheDocument();
   });
 
   it('oculta las métricas por hora cuando no se capturan horas', () => {
@@ -70,7 +70,7 @@ describe('CalculadoraPage', () => {
     fireEvent.click(screen.getByRole('button', { name: /^calcular$/i }));
 
     expect(screen.queryByText(/neto por hora/i)).not.toBeInTheDocument();
-    expect(screen.getByText(/\$26\.25/i)).toBeInTheDocument();
+    expect(screen.getByText(/\$19\.32/i)).toBeInTheDocument();
   });
 
   it('explica una métrica al tocar el botón de ayuda', () => {
@@ -92,7 +92,7 @@ describe('CalculadoraPage', () => {
     expect(ayuda).toHaveAttribute('aria-expanded', 'true');
     expect(
       screen.getByText(
-        /ganancia neta ÷ viajes = \$1,050\.00 ÷ 40 = \$26\.25/i
+        /ganancia neta ÷ viajes = \$772\.62 ÷ 40 = \$19\.32/i
       )
     ).toBeInTheDocument();
   });

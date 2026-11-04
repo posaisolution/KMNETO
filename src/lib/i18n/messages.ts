@@ -174,6 +174,8 @@ export const messages = {
     gastosFijosProrrateados: 'Gastos fijos (prorrateado)',
     imprevistos: 'Imprevistos',
     otrosGastos: 'Otros gastos',
+    historialInsuficiente:
+      'Aún no hay kilómetros de historial para suavizar imprevistos: se usaron los reales.',
     comoSeCalcula: 'Cómo se calcula',
     ayudaDe: 'Qué significa',
   },

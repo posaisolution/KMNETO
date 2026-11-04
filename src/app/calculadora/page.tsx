@@ -14,6 +14,12 @@ import {
 type GasMode = "real" | "estimado";
 type Periodo = "dia" | "semana";
 
+/** Snapshot of one calculation: the explanation panel needs the input too. */
+type Calculo = {
+  entrada: EntradaPeriodo;
+  resultado: ResultadoPeriodo;
+};
+
 type FieldDef = {
   key: string;
   label: string;
@@ -61,9 +67,19 @@ const PERFIL_FIELDS: FieldDef[] = [
   { key: "diasTrabajadosPorMes", label: messages.labels.diasTrabajadosPorMes, unit: messages.units.dias, required: true },
 ];
 
-type Calculo = {
-  entrada: EntradaPeriodo;
-  resultado: ResultadoPeriodo;
+/** Debe ser mayor a 0 para que sirva de divisor. */
+const POSITIVE_KEYS = new Set(["diasTrabajadosPorMes", "diasTrabajados", "rendimientoKmPorLitro"]);
+
+/** Perfil de arranque, rotulado como ejemplo y editable. */
+const PERFIL_EJEMPLO: Record<string, string> = {
+  rendimientoKmPorLitro: "12",
+  precioLitro: "24",
+  provisionMantenimientoPorKm: "0.6",
+  valorAuto: "200000",
+  valorResidualEstimado: "140000",
+  kmVidaUtilRestante: "200000",
+  gastosFijosMensuales: "3000",
+  diasTrabajadosPorMes: "26",
 };
 
 function parseNumber(value: string | undefined | null): number | null {
@@ -80,7 +96,9 @@ export default function CalculadoraPage() {
   const [perfil, setPerfil] = useState<Record<string, string>>(PERFIL_EJEMPLO);
   const [touched, setTouched] = useState<Record<string, boolean>>({});
   const [gasMode, setGasMode] = useState<GasMode>("real");
+  const [periodo, setPeriodo] = useState<Periodo>("dia");
   const [calculo, setCalculo] = useState<Calculo | null>(null);
+  const perfilRef = useRef<HTMLDetailsElement>(null);
 
   const diasTrabajados = periodo === "dia" ? 1 : parseNumber(values.diasTrabajados) ?? 0;
 
@@ -441,6 +459,7 @@ function ResultadosSection({
     },
   ];
 
+  // Per-hour metrics only make sense when the driver captured hours.
   if ((entrada.horasConectado ?? 0) > 0) {
     metricas.push(
       {
@@ -480,7 +499,7 @@ function ResultadosSection({
         </p>
       </div>
 
-      <div className="mb-5 grid grid-cols-2 gap-3">
+      <div className="mb-4 grid grid-cols-2 gap-3">
         {metricas.map((metrica) => (
           <MetricCard
             key={metrica.id}
@@ -500,7 +519,7 @@ function ResultadosSection({
           id="explicacion-metrica"
           role="region"
           aria-label={activa.label}
-          className="mb-5 rounded-2xl border border-line-strong bg-surface p-4"
+          className="mb-4 rounded-2xl border border-line-strong bg-surface p-4"
         >
           <p className="text-xs font-semibold uppercase tracking-wide text-dim">
             {messages.resultados.comoSeCalcula}
@@ -512,12 +531,28 @@ function ResultadosSection({
         </div>
       )}
 
+      {resultado.historialInsuficiente && (
+        <p className="mb-4 rounded-xl bg-gas-soft px-4 py-3 text-sm text-fg">
+          {messages.resultados.historialInsuficiente}
+        </p>
+      )}
+
       <div className="rounded-2xl border border-dashed border-line-strong p-4">
         <h3 className="mb-3 text-sm font-semibold text-fg">{messages.resultados.desglose}</h3>
         <div className="space-y-2 text-sm">
           <BreakdownRow tone="gain" label={messages.resultados.ingresoTotal} value={resultado.ingresoTotal} />
           <BreakdownRow tone="cost" label={messages.resultados.gasolina} value={resultado.gasolina} />
-          <BreakdownRow tone="cost" label={messages.resultados.gastosFijos} value={resultado.gastosFijos} />
+          <BreakdownRow tone="cost" label={messages.resultados.mantenimiento} value={resultado.mantenimiento} />
+          <BreakdownRow tone="cost" label={messages.resultados.depreciacion} value={resultado.depreciacion} />
+          <BreakdownRow
+            tone="cost"
+            label={
+              resultado.fijosOrigen === "prorrateado"
+                ? messages.resultados.gastosFijosProrrateados
+                : messages.resultados.gastosFijos
+            }
+            value={resultado.gastosFijos}
+          />
           <BreakdownRow tone="cost" label={messages.resultados.imprevistos} value={resultado.imprevistos} />
           <BreakdownRow tone="cost" label={messages.resultados.otrosGastos} value={resultado.otrosGastos} />
           <div className="border-t border-line pt-2">
