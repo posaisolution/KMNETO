@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useRef, useState } from "react";
-import { calcularPeriodo, EntradaPeriodo, PerfilAuto, ResultadoPeriodo } from "@/lib/calc";
+import { useMemo, useState } from "react";
+import { calcularPeriodo, EntradaPeriodo, ResultadoPeriodo } from "@/lib/calc";
 import { messages } from "@/lib/i18n/messages";
 import { explicarMetrica, MetricaId } from "@/lib/i18n/explicaciones";
 import {
@@ -25,7 +25,6 @@ type FieldDef = {
   label: string;
   unit?: string;
   required?: boolean;
-  placeholder?: string;
 };
 
 const PERIOD_FIELDS: FieldDef[] = [
@@ -36,15 +35,18 @@ const PERIOD_FIELDS: FieldDef[] = [
   { key: "propinasYEfectivo", label: messages.labels.propinasYEfectivo, unit: messages.units.pesos },
 ];
 
-const DIAS_PERIODO_FIELD: FieldDef = {
-  key: "diasTrabajados",
-  label: messages.labels.diasTrabajados,
-  unit: messages.units.dias,
-  required: true,
-  placeholder: messages.placeholders.diasSemana,
+/**
+ * Renta: campo abierto con el monto que el chofer paga en el período.
+ * En un día es la renta diaria; en una semana, la semanal. No se deriva.
+ */
+const RENTA_FIELD: FieldDef = {
+  key: "rentaPeriodo",
+  label: messages.labels.rentaDia,
+  unit: messages.units.pesos,
 };
 
 const EXPENSE_FIELDS: FieldDef[] = [
+  { key: "celularRecargasPeriodo", label: messages.labels.celularRecargas, unit: messages.units.pesos },
   { key: "imprevistos", label: messages.labels.imprevistos, unit: messages.units.pesos },
   { key: "otrosGastosPeriodo", label: messages.labels.otrosGastosPeriodo, unit: messages.units.pesos },
 ];
@@ -56,31 +58,13 @@ const GAS_REAL_FIELD: FieldDef = {
   required: true,
 };
 
-const PERFIL_FIELDS: FieldDef[] = [
+const GAS_ESTIMATE_FIELDS: FieldDef[] = [
   { key: "rendimientoKmPorLitro", label: messages.labels.rendimientoKmPorLitro, unit: messages.units.kmPorLitro, required: true },
   { key: "precioLitro", label: messages.labels.precioLitro, unit: messages.units.pesosPorLitro, required: true },
-  { key: "provisionMantenimientoPorKm", label: messages.labels.provisionMantenimientoPorKm, unit: messages.units.pesosPorKm, required: true },
-  { key: "valorAuto", label: messages.labels.valorAuto, unit: messages.units.pesos, required: true },
-  { key: "valorResidualEstimado", label: messages.labels.valorResidualEstimado, unit: messages.units.pesos, required: true },
-  { key: "kmVidaUtilRestante", label: messages.labels.kmVidaUtilRestante, unit: messages.units.km, required: true },
-  { key: "gastosFijosMensuales", label: messages.labels.gastosFijosMensuales, unit: messages.units.pesos, required: true },
-  { key: "diasTrabajadosPorMes", label: messages.labels.diasTrabajadosPorMes, unit: messages.units.dias, required: true },
 ];
 
 /** Debe ser mayor a 0 para que sirva de divisor. */
-const POSITIVE_KEYS = new Set(["diasTrabajadosPorMes", "diasTrabajados", "rendimientoKmPorLitro"]);
-
-/** Perfil de arranque, rotulado como ejemplo y editable. */
-const PERFIL_EJEMPLO: Record<string, string> = {
-  rendimientoKmPorLitro: "12",
-  precioLitro: "24",
-  provisionMantenimientoPorKm: "0.6",
-  valorAuto: "200000",
-  valorResidualEstimado: "140000",
-  kmVidaUtilRestante: "200000",
-  gastosFijosMensuales: "3000",
-  diasTrabajadosPorMes: "26",
-};
+const POSITIVE_KEYS = new Set(["rendimientoKmPorLitro"]);
 
 function parseNumber(value: string | undefined | null): number | null {
   if (value == null) return null;
@@ -93,20 +77,22 @@ function parseNumber(value: string | undefined | null): number | null {
 
 export default function CalculadoraPage() {
   const [values, setValues] = useState<Record<string, string>>({});
-  const [perfil, setPerfil] = useState<Record<string, string>>(PERFIL_EJEMPLO);
   const [touched, setTouched] = useState<Record<string, boolean>>({});
   const [gasMode, setGasMode] = useState<GasMode>("real");
   const [periodo, setPeriodo] = useState<Periodo>("dia");
   const [calculo, setCalculo] = useState<Calculo | null>(null);
-  const perfilRef = useRef<HTMLDetailsElement>(null);
 
-  const diasTrabajados = periodo === "dia" ? 1 : parseNumber(values.diasTrabajados) ?? 0;
+  const rentaField: FieldDef = {
+    ...RENTA_FIELD,
+    label:
+      periodo === "dia" ? messages.labels.rentaDia : messages.labels.rentaSemana,
+  };
 
   const errors = useMemo(() => {
     const next: Record<string, string> = {};
 
-    const check = (record: Record<string, string>, { key, required }: FieldDef) => {
-      const raw = record[key] ?? "";
+    const check = ({ key, required }: FieldDef) => {
+      const raw = values[key] ?? "";
       if (raw.trim() === "") {
         if (required) next[key] = messages.errors.required;
         return;
@@ -123,37 +109,21 @@ export default function CalculadoraPage() {
       if (POSITIVE_KEYS.has(key) && parsed <= 0) next[key] = messages.errors.positive;
     };
 
-    PERIOD_FIELDS.forEach((field) => check(values, field));
-    EXPENSE_FIELDS.forEach((field) => check(values, field));
+    PERIOD_FIELDS.forEach(check);
+    EXPENSE_FIELDS.forEach(check);
+    check(RENTA_FIELD);
 
     if (gasMode === "real") {
-      check(values, GAS_REAL_FIELD);
+      check(GAS_REAL_FIELD);
+    } else {
+      GAS_ESTIMATE_FIELDS.forEach(check);
     }
 
-    if (periodo === "semana") check(values, DIAS_PERIODO_FIELD);
-
-    PERFIL_FIELDS.forEach((field) => check(perfil, field));
-
     return next;
-  }, [values, perfil, gasMode, periodo]);
-
-  /** Renta y fijos que corresponden al período, solo para mostrarlo antes de calcular. */
-  const fijosPreview = useMemo(() => {
-    const mensual = parseNumber(perfil.gastosFijosMensuales);
-    const diasMes = parseNumber(perfil.diasTrabajadosPorMes);
-    if (mensual === null || diasMes === null || diasMes <= 0) return null;
-    const dias = periodo === "dia" ? 1 : parseNumber(values.diasTrabajados);
-    if (dias === null || dias <= 0) return null;
-    return (mensual / diasMes) * dias;
-  }, [perfil, periodo, values.diasTrabajados]);
+  }, [values, gasMode]);
 
   const handleChange = (key: string, value: string) => {
     setValues((prev) => ({ ...prev, [key]: value }));
-    setTouched((prev) => ({ ...prev, [key]: true }));
-  };
-
-  const handlePerfilChange = (key: string, value: string) => {
-    setPerfil((prev) => ({ ...prev, [key]: value }));
     setTouched((prev) => ({ ...prev, [key]: true }));
   };
 
@@ -161,29 +131,16 @@ export default function CalculadoraPage() {
     e.preventDefault();
 
     const allTouched: Record<string, boolean> = {};
-    [...PERIOD_FIELDS, ...EXPENSE_FIELDS, ...PERFIL_FIELDS, GAS_REAL_FIELD, DIAS_PERIODO_FIELD].forEach(
-      ({ key }) => (allTouched[key] = true)
-    );
+    [
+      ...PERIOD_FIELDS,
+      ...EXPENSE_FIELDS,
+      RENTA_FIELD,
+      GAS_REAL_FIELD,
+      ...GAS_ESTIMATE_FIELDS,
+    ].forEach(({ key }) => (allTouched[key] = true));
     setTouched(allTouched);
 
-    if (Object.keys(errors).length > 0) {
-      // Los campos del perfil viven en una sección que puede estar cerrada.
-      if (PERFIL_FIELDS.some(({ key }) => errors[key]) && perfilRef.current) {
-        perfilRef.current.open = true;
-      }
-      return;
-    }
-
-    const perfilAuto: PerfilAuto = {
-      rendimientoKmPorLitro: parseNumber(perfil.rendimientoKmPorLitro) ?? 0,
-      precioLitro: parseNumber(perfil.precioLitro) ?? 0,
-      provisionMantenimientoPorKm: parseNumber(perfil.provisionMantenimientoPorKm) ?? 0,
-      valorAuto: parseNumber(perfil.valorAuto) ?? 0,
-      valorResidualEstimado: parseNumber(perfil.valorResidualEstimado) ?? 0,
-      kmVidaUtilRestante: parseNumber(perfil.kmVidaUtilRestante) ?? 0,
-      gastosFijosMensuales: parseNumber(perfil.gastosFijosMensuales) ?? 0,
-      diasTrabajadosPorMes: parseNumber(perfil.diasTrabajadosPorMes) ?? 0,
-    };
+    if (Object.keys(errors).length > 0) return;
 
     const entrada: EntradaPeriodo = {
       viajes: parseNumber(values.viajes) ?? 0,
@@ -191,13 +148,17 @@ export default function CalculadoraPage() {
       km: parseNumber(values.km) ?? 0,
       ingresoPlataforma: parseNumber(values.ingresoPlataforma) ?? 0,
       propinasYEfectivo: parseNumber(values.propinasYEfectivo) ?? undefined,
-      diasTrabajados,
-      perfil: perfilAuto,
+      rentaPeriodo: parseNumber(values.rentaPeriodo) ?? undefined,
+      celularRecargasPeriodo:
+        parseNumber(values.celularRecargasPeriodo) ?? undefined,
       otrosGastosPeriodo: parseNumber(values.otrosGastosPeriodo) ?? undefined,
     };
 
     if (gasMode === "real") {
       entrada.gastoRealGasolina = parseNumber(values.gastoRealGasolina) ?? undefined;
+    } else {
+      entrada.rendimientoKmPorLitro = parseNumber(values.rendimientoKmPorLitro) ?? undefined;
+      entrada.precioLitro = parseNumber(values.precioLitro) ?? undefined;
     }
 
     const imprevistoMonto = parseNumber(values.imprevistos);
@@ -223,11 +184,7 @@ export default function CalculadoraPage() {
       hasError ? "border-danger" : "border-line",
     ].join(" ");
 
-  const renderField = (
-    { key, label, unit, required, placeholder }: FieldDef,
-    record: Record<string, string>,
-    onChange: (key: string, value: string) => void
-  ) => (
+  const renderField = ({ key, label, unit, required }: FieldDef) => (
     <div key={key}>
       <label htmlFor={key} className="mb-1.5 block text-sm font-medium text-fg">
         {label}
@@ -239,9 +196,9 @@ export default function CalculadoraPage() {
           name={key}
           inputMode="decimal"
           type="text"
-          placeholder={placeholder ?? messages.placeholders.number}
-          value={record[key] ?? ""}
-          onChange={(e) => onChange(key, e.target.value)}
+          placeholder={messages.placeholders.number}
+          value={values[key] ?? ""}
+          onChange={(e) => handleChange(key, e.target.value)}
           className={inputClass(Boolean(touched[key] && errors[key]))}
         />
         {unit && (
@@ -309,40 +266,8 @@ export default function CalculadoraPage() {
                 </button>
               </div>
 
-              <div className="space-y-4">
-                {periodo === "semana" && renderField(DIAS_PERIODO_FIELD, values, handleChange)}
-                {PERIOD_FIELDS.map((field) => renderField(field, values, handleChange))}
-              </div>
+              <div className="space-y-4">{PERIOD_FIELDS.map(renderField)}</div>
             </section>
-
-            <details
-              ref={perfilRef}
-              className="group rounded-3xl border border-line bg-surface p-6 shadow-sm"
-            >
-              <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-lg font-semibold text-fg [&::-webkit-details-marker]:hidden">
-                {messages.sections.perfil}
-                <span className="profile-chevron text-muted transition-transform">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M6 9l6 6 6-6" />
-                  </svg>
-                </span>
-              </summary>
-
-              <p className="mt-3 text-xs leading-relaxed text-dim">{messages.hints.perfilEjemplo}</p>
-
-              <div className="mt-5 space-y-4">
-                {PERFIL_FIELDS.map((field) => renderField(field, perfil, handlePerfilChange))}
-              </div>
-            </details>
-
-            {fijosPreview !== null && (
-              <p className="rounded-2xl bg-gain-soft px-4 py-3 text-sm text-fg">
-                {messages.hints.fijosPorPeriodo}{" "}
-                <span className="font-bold tabular-nums text-gain">
-                  {formatearMoneda(fijosPreview)}
-                </span>
-              </p>
-            )}
 
             <section className="rounded-3xl border border-line bg-surface p-6 shadow-sm">
               <h2 className="mb-5 text-lg font-semibold text-fg">{messages.sections.gastos}</h2>
@@ -362,22 +287,26 @@ export default function CalculadoraPage() {
                     onClick={() => setGasMode("estimado")}
                     className={segmented(gasMode === "estimado")}
                   >
-                    Estimar con mi auto
+                    Estimar
                   </button>
                 </div>
                 <div className="mt-4 space-y-4">
                   {gasMode === "real" ? (
-                    renderField(GAS_REAL_FIELD, values, handleChange)
+                    renderField(GAS_REAL_FIELD)
                   ) : (
-                    <p className="text-sm leading-relaxed text-muted">
-                      {messages.hints.gasolinaEstimada}
-                    </p>
+                    <>
+                      <p className="text-sm leading-relaxed text-muted">
+                        {messages.hints.gasolinaEstimada}
+                      </p>
+                      {GAS_ESTIMATE_FIELDS.map(renderField)}
+                    </>
                   )}
                 </div>
               </div>
 
               <div className="space-y-4">
-                {EXPENSE_FIELDS.map((field) => renderField(field, values, handleChange))}
+                {renderField(rentaField)}
+                {EXPENSE_FIELDS.map(renderField)}
               </div>
             </section>
 
@@ -406,12 +335,6 @@ export default function CalculadoraPage() {
           )}
         </div>
       </main>
-
-      <style jsx>{`
-        details[open] .profile-chevron {
-          transform: rotate(180deg);
-        }
-      `}</style>
     </div>
   );
 }
@@ -542,17 +465,8 @@ function ResultadosSection({
         <div className="space-y-2 text-sm">
           <BreakdownRow tone="gain" label={messages.resultados.ingresoTotal} value={resultado.ingresoTotal} />
           <BreakdownRow tone="cost" label={messages.resultados.gasolina} value={resultado.gasolina} />
-          <BreakdownRow tone="cost" label={messages.resultados.mantenimiento} value={resultado.mantenimiento} />
-          <BreakdownRow tone="cost" label={messages.resultados.depreciacion} value={resultado.depreciacion} />
-          <BreakdownRow
-            tone="cost"
-            label={
-              resultado.fijosOrigen === "prorrateado"
-                ? messages.resultados.gastosFijosProrrateados
-                : messages.resultados.gastosFijos
-            }
-            value={resultado.gastosFijos}
-          />
+          <BreakdownRow tone="cost" label={messages.resultados.renta} value={resultado.renta} />
+          <BreakdownRow tone="cost" label={messages.resultados.celularRecargas} value={resultado.celularRecargas} />
           <BreakdownRow tone="cost" label={messages.resultados.imprevistos} value={resultado.imprevistos} />
           <BreakdownRow tone="cost" label={messages.resultados.otrosGastos} value={resultado.otrosGastos} />
           <div className="border-t border-line pt-2">
