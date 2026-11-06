@@ -5,7 +5,9 @@
 
 ## 1. Qué es el producto
 
-App web (PWA, mobile-first) en **español de México** que le dice a un chofer de plataformas de transporte (Uber, DiDi, inDrive u otras) cuánto gana **realmente** después de todos sus costos: gasolina, mantenimiento, depreciación, gastos fijos e imprevistos del auto.
+App web (PWA, mobile-first) en **español de México** que le dice a un chofer de plataformas de transporte (Uber, DiDi, inDrive u otras) cuánto gana **realmente** después de todos sus costos: gasolina, renta del auto, celular y recargas, imprevistos y otros gastos del período.
+
+Todos los montos los captura el chofer: la app no precarga valores ni supone rentas, rendimientos o precios.
 
 - **Gratis (sin registro):** calculadora de un día o una semana. Al final ofrece enviar el resultado por WhatsApp o correo (captura de contacto).
 - **Pro (suscripción, después del MVP):** cuenta, historial, reporte semanal, mejores días y horarios.
@@ -36,29 +38,24 @@ Todas las cantidades en pesos mexicanos (MXN). Los cálculos viven en **funcione
 - `km`: kilómetros totales recorridos (incluyendo los vacíos)
 - `ingresoPlataforma`: lo que la app le muestra como ganancia (ver nota)
 - `propinasYEfectivo`: opcional
-- `diasTrabajados` del período
+- `rentaPeriodo`: campo abierto con la renta que paga el chofer en el período. En "Un día" es la renta diaria; en "Una semana", la semanal. No se deriva ni se prorratea.
+- `celularRecargasPeriodo`: gasto de celular y recargas del período
+- `gastoRealGasolina` o, si prefiere estimar, `rendimientoKmPorLitro` + `precioLitro`
+- `imprevistos`: opcional
+- `otrosGastosPeriodo`: opcional
 
 > Nota: cada plataforma muestra "ganancia" de forma distinta (algunas ya descuentan comisión). Por eso el formulario pide **lo que el chofer realmente recibe**, y ofrece un campo opcional de "% de comisión" solo si ingresa tarifa bruta. No asumir porcentajes de comisión.
-
-### Perfil del auto (se captura una vez, editable)
-- `rendimientoKmPorLitro`
-- `precioLitro` (editable por período)
-- `provisionMantenimientoPorKm` (aceite, filtros, frenos, desgaste de llantas)
-- `valorAuto`, `valorResidualEstimado`, `kmVidaUtilRestante` → depreciación por km
-- `gastosFijosMensuales`: seguro, financiamiento o renta, verificación, refrendo, plan de datos, lavado, etc.
-- `diasTrabajadosPorMes` (default 26, editable)
 
 ### Cálculo
 ```
 litros              = km / rendimientoKmPorLitro
 gasolina            = litros * precioLitro            (o gasto real si el chofer lo captura directamente)
-mantenimiento       = km * provisionMantenimientoPorKm
-depreciacion        = km * ((valorAuto - valorResidualEstimado) / kmVidaUtilRestante)
-fijosProrrateados   = (gastosFijosMensuales / diasTrabajadosPorMes) * diasTrabajados
+renta               = rentaPeriodo                    (se resta tal cual, ya es del período)
+celular             = celularRecargasPeriodo
 imprevistos         = ver sección siguiente
 
 ingresoTotal        = ingresoPlataforma + propinasYEfectivo
-costoTotal          = gasolina + mantenimiento + depreciacion + fijosProrrateados + imprevistos
+costoTotal          = gasolina + renta + celular + imprevistos + otrosGastosPeriodo
 neto                = ingresoTotal - costoTotal
 
 netoPorViaje        = neto / viajes
@@ -71,12 +68,14 @@ puntoEquilibrioHora = costoTotal / horasConectado  (lo mínimo que debe ganar po
 ```
 Proteger divisiones entre cero (viajes = 0, horas = 0, km = 0, ingreso = 0): devolver `null`, no `NaN` ni `Infinity`.
 
+> Decisión de producto: el MVP mide **gasto de bolsillo real**, no desgaste teórico. Mantenimiento por km y depreciación quedaron fuera del cálculo a propósito; no volver a introducirlos sin autorización explícita.
+
 ### Imprevistos (llanta ponchada, falla, grúa, multa, etc.)
 Son gastos irregulares. Se registran con fecha, categoría y monto. Se muestran de **dos formas** que el usuario puede alternar:
 1. **Reales:** se restan en el período en que ocurrieron.
 2. **Suavizados:** reserva = (imprevistos acumulados / km acumulados en la ventana histórica) * km del período. Si no hay historial suficiente, usar solo los reales y avisarlo.
 
-Evitar doble conteo: `provisionMantenimientoPorKm` cubre desgaste esperado; los imprevistos cubren lo inesperado. No registrar el mismo gasto en ambos.
+Evitar doble conteo: si un gasto se captura como imprevisto del período, no volver a sumarlo en otro gasto ni en renta. Un mismo gasto entra una sola vez.
 
 ## 5. Cosas que NO se hacen
 

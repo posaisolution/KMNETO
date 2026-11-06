@@ -17,38 +17,45 @@ function fillRequiredRealValues() {
   });
 }
 
+function fillRealCosts() {
+  fireEvent.change(screen.getByLabelText(/gasto real en gasolina/i), {
+    target: { value: '350' },
+  });
+  fireEvent.change(screen.getByLabelText(/renta x d[ií]a/i), {
+    target: { value: '400' },
+  });
+  fireEvent.change(screen.getByLabelText(/celular y recargas/i), {
+    target: { value: '100' },
+  });
+}
+
+const calcular = () =>
+  fireEvent.click(screen.getByRole('button', { name: /^calcular$/i }));
+
 describe('CalculadoraPage', () => {
-  it('calcula y muestra resultados usando gasto real de gasolina', () => {
+  it('calcula y muestra resultados con los gastos de bolsillo', () => {
     render(<CalculadoraPage />);
 
     fillRequiredRealValues();
-    fireEvent.change(screen.getByLabelText(/gasto real en gasolina/i), {
-      target: { value: '350' },
-    });
+    fillRealCosts();
+    calcular();
 
-    fireEvent.click(screen.getByRole('button', { name: /^calcular$/i }));
-
-    // Perfil de ejemplo: 180 km * $0.60/km = $108 mantenimiento,
-    // 180 km * $0.30/km = $54 depreciación, ($3,000 / 26) * 1 día = $115.38 fijos.
-    // Costo 350 + 108 + 54 + 115.38 = 627.38; neto 1,400 - 627.38 = 772.62.
+    // Gasolina 350 + renta 400 + celular 100 = 850; neto 1,400 - 850 = 550.
     expect(screen.getByText(/ganancia neta/i)).toBeInTheDocument();
-    expect(screen.getByText(/\$772\.62/i)).toBeInTheDocument();
+    expect(screen.getByText(/\$550\.00/i)).toBeInTheDocument();
   });
 
   it('muestra las métricas por viaje como denominador principal', () => {
     render(<CalculadoraPage />);
 
     fillRequiredRealValues();
-    fireEvent.change(screen.getByLabelText(/gasto real en gasolina/i), {
-      target: { value: '350' },
-    });
+    fillRealCosts();
+    calcular();
 
-    fireEvent.click(screen.getByRole('button', { name: /^calcular$/i }));
-
-    // Neto 772.62 / 40 viajes = 19.32
-    expect(screen.getByText(/\$19\.32/i)).toBeInTheDocument();
-    // Costo 627.38 / 40 viajes = 15.68
-    expect(screen.getByText(/\$15\.68/i)).toBeInTheDocument();
+    // Neto 550 / 40 viajes = 13.75
+    expect(screen.getByText(/\$13\.75/i)).toBeInTheDocument();
+    // Costo 850 / 40 viajes = 21.25
+    expect(screen.getByText(/\$21\.25/i)).toBeInTheDocument();
   });
 
   it('oculta las métricas por hora cuando no se capturan horas', () => {
@@ -63,24 +70,37 @@ describe('CalculadoraPage', () => {
     fireEvent.change(screen.getByLabelText(/ingreso de la plataforma/i), {
       target: { value: '1400' },
     });
-    fireEvent.change(screen.getByLabelText(/gasto real en gasolina/i), {
-      target: { value: '350' },
-    });
-
-    fireEvent.click(screen.getByRole('button', { name: /^calcular$/i }));
+    fillRealCosts();
+    calcular();
 
     expect(screen.queryByText(/neto por hora/i)).not.toBeInTheDocument();
-    expect(screen.getByText(/\$19\.32/i)).toBeInTheDocument();
+    expect(screen.getByText(/\$13\.75/i)).toBeInTheDocument();
+  });
+
+  it('cambia la etiqueta de la renta según el período', () => {
+    render(<CalculadoraPage />);
+
+    expect(screen.getByLabelText(/renta x d[ií]a/i)).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: /una semana/i }));
+
+    expect(screen.getByLabelText(/renta x semana/i)).toBeInTheDocument();
+    expect(screen.queryByLabelText(/renta x d[ií]a/i)).not.toBeInTheDocument();
+  });
+
+  it('ya no muestra la sección del auto', () => {
+    render(<CalculadoraPage />);
+
+    expect(screen.queryByText(/tu auto/i)).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(/valor del auto/i)).not.toBeInTheDocument();
   });
 
   it('explica una métrica al tocar el botón de ayuda', () => {
     render(<CalculadoraPage />);
 
     fillRequiredRealValues();
-    fireEvent.change(screen.getByLabelText(/gasto real en gasolina/i), {
-      target: { value: '350' },
-    });
-    fireEvent.click(screen.getByRole('button', { name: /^calcular$/i }));
+    fillRealCosts();
+    calcular();
 
     const ayuda = screen.getByRole('button', {
       name: /qué significa neto por viaje/i,
@@ -91,13 +111,11 @@ describe('CalculadoraPage', () => {
 
     expect(ayuda).toHaveAttribute('aria-expanded', 'true');
     expect(
-      screen.getByText(
-        /ganancia neta ÷ viajes = \$772\.62 ÷ 40 = \$19\.32/i
-      )
+      screen.getByText(/ganancia neta ÷ viajes = \$550\.00 ÷ 40 = \$13\.75/i)
     ).toBeInTheDocument();
   });
 
-  it('calcula gasolina estimada cuando se elige el modo estimado', () => {
+  it('calcula gasolina estimada con rendimiento y precio', () => {
     render(<CalculadoraPage />);
 
     fillRequiredRealValues();
@@ -108,19 +126,24 @@ describe('CalculadoraPage', () => {
     fireEvent.change(screen.getByLabelText(/precio de la gasolina/i), {
       target: { value: '24' },
     });
-
-    fireEvent.click(screen.getByRole('button', { name: /^calcular$/i }));
+    fireEvent.change(screen.getByLabelText(/renta x d[ií]a/i), {
+      target: { value: '400' },
+    });
+    fireEvent.change(screen.getByLabelText(/celular y recargas/i), {
+      target: { value: '100' },
+    });
+    calcular();
 
     // 180 km / 12 km/l = 15 l * $24/l = $360 de gasolina.
-    // Costo 360 + 108 + 54 + 115.38 = 637.38; neto 1,400 - 637.38 = 762.62.
+    // Costo 360 + 400 + 100 = 860; neto 1,400 - 860 = 540.
     expect(screen.getByText(/ganancia neta/i)).toBeInTheDocument();
-    expect(screen.getByText(/\$762\.62/i)).toBeInTheDocument();
+    expect(screen.getByText(/\$540\.00/i)).toBeInTheDocument();
   });
 
   it('muestra errores de validación cuando faltan campos requeridos', () => {
     render(<CalculadoraPage />);
 
-    fireEvent.click(screen.getByRole('button', { name: /^calcular$/i }));
+    calcular();
 
     expect(screen.getAllByText(/completa este campo/i).length).toBeGreaterThanOrEqual(4);
   });

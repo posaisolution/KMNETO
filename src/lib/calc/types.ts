@@ -5,26 +5,6 @@ export type Imprevisto = {
 };
 
 /**
- * Datos del auto. Se captura una vez y se puede editar.
- *
- * `precioLitro` es el valor por defecto: si el período trae uno propio, ese manda.
- */
-export type PerfilAuto = {
-  rendimientoKmPorLitro: number;
-  precioLitro: number;
-  /** Provisión de mantenimiento por km: aceite, frenos, llantas. */
-  provisionMantenimientoPorKm: number;
-  valorAuto: number;
-  valorResidualEstimado: number;
-  /** Kilómetros de vida útil que le quedan al auto. */
-  kmVidaUtilRestante: number;
-  /** Seguro, financiamiento o renta, verificación, datos, lavado... al mes. */
-  gastosFijosMensuales: number;
-  /** Divisor del prorrateo de los gastos fijos. Debe ser mayor a 0. */
-  diasTrabajadosPorMes: number;
-};
-
-/**
  * Cómo se contabilizan los imprevistos.
  * - `reales`: se restan en el período en que ocurrieron.
  * - `suavizados`: se reserva (imprevistos acumulados / km acumulados) * km del período.
@@ -36,9 +16,6 @@ export type VentanaImprevistos = {
   montoAcumulado: number;
   kmAcumulados: number;
 };
-
-/** De dónde salió el gasto fijo del resultado. */
-export type OrigenGastosFijos = 'capturado' | 'prorrateado' | 'ninguno';
 
 export type EntradaPeriodo = {
   /**
@@ -55,11 +32,15 @@ export type EntradaPeriodo = {
   ingresoPlataforma: number;
   propinasYEfectivo?: number;
 
-  /** Días trabajados dentro del período. Un día suelto es 1. */
-  diasTrabajados?: number;
+  /**
+   * Renta del período. Campo abierto: el chofer escribe el monto que paga.
+   * En un día es la renta diaria; en una semana, la renta semanal.
+   * No se deriva ni se prorratea.
+   */
+  rentaPeriodo?: number;
 
-  /** Perfil del auto. Sin perfil no hay mantenimiento, depreciación ni prorrateo. */
-  perfil?: PerfilAuto;
+  /** Celular y recargas del período. */
+  celularRecargasPeriodo?: number;
 
   /**
    * Real fuel expense for the period.
@@ -67,17 +48,11 @@ export type EntradaPeriodo = {
    */
   gastoRealGasolina?: number;
 
-  /** Fuel efficiency (km/l). Falls back to the profile when omitted. */
+  /** Fuel efficiency (km/l). Used only when gastoRealGasolina is not provided. */
   rendimientoKmPorLitro?: number;
 
-  /** Fuel price (MXN/l). Falls back to the profile when omitted. */
+  /** Fuel price (MXN/l). Used only when gastoRealGasolina is not provided. */
   precioLitro?: number;
-
-  /**
-   * Fixed costs already prorated by the caller for this exact period.
-   * When provided it wins over the profile prorating.
-   */
-  gastosFijosPeriodo?: number;
 
   /** Unexpected expenses that happened in the period (flat tire, tow, fine...). */
   imprevistos?: Imprevisto[];
@@ -88,18 +63,14 @@ export type EntradaPeriodo = {
   /** Historical window for the smoothed mode. Without km history it falls back to `reales`. */
   ventanaImprevistos?: VentanaImprevistos;
 
-  /** Other period expenses (food, cell recharge, etc.). */
+  /** Other period expenses (food, etc.). */
   otrosGastosPeriodo?: number;
 };
 
 export type ResultadoPeriodo = {
   gasolina: number;
-  mantenimiento: number;
-  depreciacion: number;
-  /** Gasto fijo efectivo: capturado tal cual o prorrateado desde el perfil. */
-  gastosFijos: number;
-  /** De dónde salió `gastosFijos`. */
-  fijosOrigen: OrigenGastosFijos;
+  renta: number;
+  celularRecargas: number;
   imprevistos: number;
   /** Modo realmente aplicado (en suavizados sin historial se usa `reales`). */
   imprevistosModo: ModoImprevistos;

@@ -102,7 +102,6 @@ export const messages = {
 
   sections: {
     periodo: 'El período',
-    perfil: 'Tu auto',
     gastos: 'Tus gastos',
     resultados: 'Resultados',
   },
@@ -116,16 +115,12 @@ export const messages = {
     km: 'Kilómetros recorridos',
     ingresoPlataforma: 'Ingreso de la plataforma',
     propinasYEfectivo: 'Propinas y efectivo',
-    diasTrabajados: 'Días trabajados en el período',
+    rentaDia: 'Renta x día',
+    rentaSemana: 'Renta x Semana',
+    celularRecargas: 'Celular y recargas',
     gastoRealGasolina: 'Gasto real en gasolina',
     rendimientoKmPorLitro: 'Rendimiento del auto',
     precioLitro: 'Precio de la gasolina',
-    provisionMantenimientoPorKm: 'Mantenimiento por kilómetro',
-    valorAuto: 'Valor de tu auto',
-    valorResidualEstimado: 'Valor al que lo venderías',
-    kmVidaUtilRestante: 'Kilómetros que le quedan',
-    gastosFijosMensuales: 'Renta y gastos fijos al mes',
-    diasTrabajadosPorMes: 'Días que trabajas al mes',
     imprevistos: 'Imprevistos',
     otrosGastosPeriodo: 'Otros gastos del período',
   },
@@ -142,14 +137,10 @@ export const messages = {
   placeholders: {
     number: '0',
     optional: 'Opcional',
-    diasSemana: 'Ej. 6',
   },
   hints: {
-    perfilEjemplo:
-      'Valores de ejemplo: ajústalos a tu auto antes de calcular.',
     gasolinaEstimada:
-      'Se calcula con el rendimiento y el precio de la gasolina de tu auto.',
-    fijosPorPeriodo: 'Te toca por período:',
+      'Se calcula con el rendimiento del auto y el precio por litro que captures.',
   },
   buttons: {
     calcular: 'Calcular',
@@ -168,10 +159,8 @@ export const messages = {
     costoTotal: 'Costo total',
     desglose: 'Desglose de costos',
     gasolina: 'Gasolina',
-    mantenimiento: 'Mantenimiento',
-    depreciacion: 'Depreciación',
-    gastosFijos: 'Gastos fijos',
-    gastosFijosProrrateados: 'Gastos fijos (prorrateado)',
+    renta: 'Renta',
+    celularRecargas: 'Celular y recargas',
     imprevistos: 'Imprevistos',
     otrosGastos: 'Otros gastos',
     historialInsuficiente:
@@ -181,7 +170,7 @@ export const messages = {
   },
   explicaciones: {
     netoPorViaje:
-      'Lo que te queda limpio de cada viaje, ya descontando gasolina, gastos fijos, imprevistos y otros gastos.',
+      'Lo que te queda limpio de cada viaje, ya descontando gasolina, renta, celular, imprevistos y otros gastos.',
     puntoEquilibrioViaje:
       'Lo que te cuesta operar cada viaje. Si el viaje paga menos que esto, estás perdiendo dinero.',
     netoPorHora:
@@ -191,7 +180,7 @@ export const messages = {
     netoPorKm:
       'Ganancia limpia por cada kilómetro recorrido, contando también los kilómetros sin pasajero.',
     costoPorKm:
-      'Cuánto te cuesta mover el auto cada kilómetro: gasolina, gastos fijos, imprevistos y otros gastos.',
+      'Cuánto te cuesta mover el auto cada kilómetro: gasolina, renta, celular, imprevistos y otros gastos.',
     margenPct:
       'Qué parte de lo que entra por la plataforma se convierte en ganancia. Lo que falta se va en costos.',
   },
