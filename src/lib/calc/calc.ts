@@ -2,7 +2,6 @@ import {
   EntradaPeriodo,
   Imprevisto,
   ModoImprevistos,
-  PerfilAuto,
   ResultadoPeriodo,
   VentanaImprevistos,
 } from './types';
@@ -12,10 +11,8 @@ export function calcularGasolina(entrada: EntradaPeriodo): number {
     return entrada.gastoRealGasolina;
   }
 
-  // El período manda sobre el perfil: el precio del litro cambia seguido.
-  const rendimiento =
-    entrada.rendimientoKmPorLitro ?? entrada.perfil?.rendimientoKmPorLitro;
-  const precio = entrada.precioLitro ?? entrada.perfil?.precioLitro;
+  const rendimiento = entrada.rendimientoKmPorLitro;
+  const precio = entrada.precioLitro;
 
   if (rendimiento !== undefined && precio !== undefined && rendimiento > 0) {
     const litros = entrada.km / rendimiento;
@@ -27,48 +24,6 @@ export function calcularGasolina(entrada: EntradaPeriodo): number {
 
 export function sumarImprevistos(imprevistos: Imprevisto[] = []): number {
   return imprevistos.reduce((total, imp) => total + imp.monto, 0);
-}
-
-/**
- * Desgaste esperado: aceite, filtros, frenos, llantas.
- * Complementa a los imprevistos, no los duplica (AGENTS.md §4).
- */
-export function calcularMantenimiento(
-  km: number,
-  provisionMantenimientoPorKm: number
-): number {
-  return km * provisionMantenimientoPorKm;
-}
-
-/**
- * Depreciación por kilómetro: (valor - residual) / km de vida útil restante.
- *
- * Sin vida útil restante no hay más valor que perder, y si el residual alcanza
- * el valor del auto la depreciación es 0 en lugar de negativa.
- */
-export function calcularDepreciacionPorKm(perfil: PerfilAuto): number {
-  if (perfil.kmVidaUtilRestante <= 0) return 0;
-
-  const valorDepreciable = perfil.valorAuto - perfil.valorResidualEstimado;
-  if (valorDepreciable <= 0) return 0;
-
-  return valorDepreciable / perfil.kmVidaUtilRestante;
-}
-
-/**
- * Prorrateo de gastos fijos mensuales sobre los días trabajados del período.
- *
- * La renta se paga completa aunque se trabaje menos, así que el costo por día
- * es (gasto mensual / días trabajados al mes). Es la única base de prorrateo:
- * no mezclar días por semana con días por mes.
- */
-export function calcularFijosProrrateados(
-  gastosFijosMensuales: number,
-  diasTrabajadosPorMes: number,
-  diasTrabajados: number
-): number {
-  if (diasTrabajadosPorMes <= 0) return 0;
-  return (gastosFijosMensuales / diasTrabajadosPorMes) * diasTrabajados;
 }
 
 /**
@@ -107,36 +62,9 @@ export function calcularImprevistos({
 }
 
 export function calcularPeriodo(entrada: EntradaPeriodo): ResultadoPeriodo {
-  const diasTrabajados = entrada.diasTrabajados ?? 1;
-  const perfil = entrada.perfil;
-
   const gasolina = calcularGasolina(entrada);
-
-  const mantenimiento = perfil
-    ? calcularMantenimiento(entrada.km, perfil.provisionMantenimientoPorKm)
-    : 0;
-
-  const depreciacion = perfil
-    ? entrada.km * calcularDepreciacionPorKm(perfil)
-    : 0;
-
-  let gastosFijos: number;
-  let fijosOrigen: ResultadoPeriodo['fijosOrigen'];
-
-  if (entrada.gastosFijosPeriodo !== undefined) {
-    gastosFijos = entrada.gastosFijosPeriodo;
-    fijosOrigen = 'capturado';
-  } else if (perfil) {
-    gastosFijos = calcularFijosProrrateados(
-      perfil.gastosFijosMensuales,
-      perfil.diasTrabajadosPorMes,
-      diasTrabajados
-    );
-    fijosOrigen = 'prorrateado';
-  } else {
-    gastosFijos = 0;
-    fijosOrigen = 'ninguno';
-  }
+  const renta = entrada.rentaPeriodo ?? 0;
+  const celularRecargas = entrada.celularRecargasPeriodo ?? 0;
 
   const imprevistosCalculados = calcularImprevistos({
     modo: entrada.imprevistosModo ?? 'reales',
@@ -148,8 +76,7 @@ export function calcularPeriodo(entrada: EntradaPeriodo): ResultadoPeriodo {
 
   const otrosGastos = entrada.otrosGastosPeriodo ?? 0;
 
-  const costoTotal =
-    gasolina + mantenimiento + depreciacion + gastosFijos + imprevistos + otrosGastos;
+  const costoTotal = gasolina + renta + celularRecargas + imprevistos + otrosGastos;
   const ingresoTotal =
     entrada.ingresoPlataforma + (entrada.propinasYEfectivo ?? 0);
   const neto = ingresoTotal - costoTotal;
@@ -159,10 +86,8 @@ export function calcularPeriodo(entrada: EntradaPeriodo): ResultadoPeriodo {
 
   return {
     gasolina,
-    mantenimiento,
-    depreciacion,
-    gastosFijos,
-    fijosOrigen,
+    renta,
+    celularRecargas,
     imprevistos,
     imprevistosModo: imprevistosCalculados.modo,
     historialInsuficiente: imprevistosCalculados.historialInsuficiente,
