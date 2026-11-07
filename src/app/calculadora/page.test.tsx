@@ -140,6 +140,49 @@ describe('CalculadoraPage', () => {
     expect(screen.getByText(/\$540\.00/i)).toBeInTheDocument();
   });
 
+  it('limpia los campos y el resultado al cambiar de período', () => {
+    render(<CalculadoraPage />);
+
+    fillRequiredRealValues();
+    fillRealCosts();
+    calcular();
+    expect(screen.getByText(/ganancia neta/i)).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: /una semana/i }));
+
+    expect(screen.getByLabelText(/viajes del período/i)).toHaveValue('');
+    expect(screen.getByLabelText(/renta x semana/i)).toHaveValue('');
+    expect(screen.getByLabelText(/ingreso de la plataforma/i)).toHaveValue('');
+    expect(screen.queryByText(/ganancia neta/i)).not.toBeInTheDocument();
+  });
+
+  it('no borra los campos al tocar el período que ya está activo', () => {
+    render(<CalculadoraPage />);
+
+    fireEvent.change(screen.getByLabelText(/viajes del período/i), {
+      target: { value: '40' },
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: /un día/i }));
+
+    expect(screen.getByLabelText(/viajes del período/i)).toHaveValue('40');
+  });
+
+  it('solo acepta números en los campos', () => {
+    render(<CalculadoraPage />);
+
+    const viajes = screen.getByLabelText(/viajes del período/i);
+
+    fireEvent.change(viajes, { target: { value: '12abc' } });
+    expect(viajes).toHaveValue('12');
+
+    fireEvent.change(viajes, { target: { value: '1.2.3' } });
+    expect(viajes).toHaveValue('1.23');
+
+    fireEvent.change(viajes, { target: { value: 'abc' } });
+    expect(viajes).toHaveValue('');
+  });
+
   it('muestra errores de validación cuando faltan campos requeridos', () => {
     render(<CalculadoraPage />);
 

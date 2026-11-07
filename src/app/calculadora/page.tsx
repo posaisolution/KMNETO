@@ -66,6 +66,13 @@ const GAS_ESTIMATE_FIELDS: FieldDef[] = [
 /** Debe ser mayor a 0 para que sirva de divisor. */
 const POSITIVE_KEYS = new Set(["rendimientoKmPorLitro"]);
 
+/** Deja solo dígitos y un único punto decimal. */
+function sanitizeNumeric(value: string): string {
+  const limpio = value.replace(/[^\d.]/g, "");
+  const [entero, ...decimales] = limpio.split(".");
+  return decimales.length > 0 ? `${entero}.${decimales.join("")}` : entero;
+}
+
 function parseNumber(value: string | undefined | null): number | null {
   if (value == null) return null;
   const trimmed = value.trim().replace(/,/g, "");
@@ -123,7 +130,7 @@ export default function CalculadoraPage() {
   }, [values, gasMode]);
 
   const handleChange = (key: string, value: string) => {
-    setValues((prev) => ({ ...prev, [key]: value }));
+    setValues((prev) => ({ ...prev, [key]: sanitizeNumeric(value) }));
     setTouched((prev) => ({ ...prev, [key]: true }));
   };
 
@@ -175,6 +182,13 @@ export default function CalculadoraPage() {
     setValues({});
     setTouched({});
     setCalculo(null);
+  };
+
+  /** Cambiar de período empieza una captura nueva: los montos no son comparables. */
+  const handlePeriodo = (siguiente: Periodo) => {
+    if (siguiente === periodo) return;
+    setPeriodo(siguiente);
+    handleLimpiar();
   };
 
   const inputClass = (hasError: boolean) =>
@@ -250,7 +264,7 @@ export default function CalculadoraPage() {
               <div className="mb-5 flex gap-2">
                 <button
                   type="button"
-                  onClick={() => setPeriodo("dia")}
+                  onClick={() => handlePeriodo("dia")}
                   aria-pressed={periodo === "dia"}
                   className={segmented(periodo === "dia")}
                 >
@@ -258,7 +272,7 @@ export default function CalculadoraPage() {
                 </button>
                 <button
                   type="button"
-                  onClick={() => setPeriodo("semana")}
+                  onClick={() => handlePeriodo("semana")}
                   aria-pressed={periodo === "semana"}
                   className={segmented(periodo === "semana")}
                 >
