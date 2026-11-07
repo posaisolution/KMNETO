@@ -81,7 +81,6 @@ export default function CalculadoraPage() {
   const [gasMode, setGasMode] = useState<GasMode>("real");
   const [periodo, setPeriodo] = useState<Periodo>("dia");
   const [calculo, setCalculo] = useState<Calculo | null>(null);
-  const perfilRef = useRef<HTMLDetailsElement>(null);
 
   const rentaField: FieldDef = {
     ...RENTA_FIELD,
