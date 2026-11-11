@@ -1,0 +1,21 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: kmneto_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: kmneto
+      POSTGRES_USER: kmneto_user
+      POSTGRES_PASSWORD: kmneto_password_dev
+    ports:
+      - "5434:5432"
+    volumes:
+      - kmneto_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U kmneto_user -d kmneto"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  kmneto_postgres_data:

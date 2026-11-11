@@ -116,3 +116,14 @@ tests/
 - Si una prueba falla, no cambies el valor esperado para que pase: reporta el desacuerdo y pregunta.
 - Haz los cálculos solo en código, nunca "a ojo" ni con tu propio razonamiento numérico.
 - Si algo del enunciado es ambiguo, pregunta antes de decidir.
+
+## 10. Entorno de desarrollo (Fase 2)
+
+- **Base de datos:** PostgreSQL en Docker, puerto **5434** (el 5433 ya lo usa otro proyecto). `npm run db:up` / `npm run db:down`.
+- **Variables:** viven en `.env` (ignorado por git). La plantilla es `.env.example`.
+- **Prisma:** `npx prisma migrate dev` para migraciones y `npx prisma generate` para el cliente (el `postinstall` ya lo genera).
+- **Auth:** Auth.js v5 con email + contraseña, sesión JWT. Recuperación por correo con Resend; si falta `RESEND_API_KEY`, el enlace se imprime en la consola en desarrollo.
+- **Rutas privadas:** `/dashboard` está protegida por `src/proxy.ts`.
+- **Aislamiento de datos:** toda consulta a la base debe filtrar por `userId`. No existe multi-tenant: el cliente es el chofer, no una empresa.
+- **Verificación obligatoria:** `npm run typecheck`, `npm run lint`, `npm test`, `npm run build`.
+

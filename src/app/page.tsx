@@ -81,6 +81,13 @@ export default function Home() {
           </nav>
 
           <Link
+            href="/login"
+            className="hidden rounded-full border border-line bg-surface px-4 py-2 text-sm font-semibold text-fg transition hover:bg-surface-2 md:inline-flex"
+          >
+            {nav.entrar}
+          </Link>
+
+          <Link
             href="/calculadora"
             className="hidden items-center gap-2 rounded-full bg-fg px-5 py-2 text-sm font-semibold text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-slate-800 hover:shadow-md md:inline-flex"
           >
@@ -117,9 +124,16 @@ export default function Home() {
               </Link>
             ))}
             <Link
+              href="/login"
+              onClick={() => setMenuOpen(false)}
+              className="mt-4 block rounded-full border border-line px-5 py-3 text-center text-sm font-semibold text-fg"
+            >
+              {nav.entrar}
+            </Link>
+            <Link
               href="/calculadora"
               onClick={() => setMenuOpen(false)}
-              className="mt-4 block rounded-full bg-fg px-5 py-3 text-center text-sm font-semibold text-white"
+              className="mt-3 block rounded-full bg-fg px-5 py-3 text-center text-sm font-semibold text-white"
             >
               {nav.calcular}
             </Link>
