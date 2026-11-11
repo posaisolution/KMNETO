@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 
+import { PeriodoActions } from '@/components/dashboard/periodo-actions';
 import { logoutAction } from '@/lib/actions/auth';
 import { auth } from '@/lib/auth';
 import { formatearMoneda } from '@/lib/calc/format';
@@ -131,6 +132,8 @@ export default async function DashboardPage() {
                         </dd>
                       </div>
                     </dl>
+
+                    <PeriodoActions id={periodo.id} />
                   </li>
                 );
               })}

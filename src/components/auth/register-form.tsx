@@ -75,7 +75,15 @@ export function RegisterForm() {
         {isPending ? '...' : labels.register.submit}
       </button>
 
-      <p className="text-xs leading-relaxed text-dim">{labels.register.privacy}</p>
+      <p className="text-xs leading-relaxed text-dim">
+        {labels.register.privacy}{' '}
+        <Link
+          href="/privacidad"
+          className="font-semibold text-gain underline underline-offset-2"
+        >
+          {messages.privacidad.title}
+        </Link>
+      </p>
 
       <p className="text-center text-sm text-muted">
         {labels.register.hasAccount}{' '}
