@@ -272,5 +272,52 @@ export const messages = {
     saveError: 'No se pudo guardar. Inténtalo de nuevo.',
     savedAt: 'Guardado',
     deletePeriod: 'Eliminar',
+    editPeriod: 'Corregir',
+    deleteConfirm: '¿Eliminar esta jornada? Esta acción no se puede deshacer.',
+    deleteYes: 'Sí, eliminar',
+    deleteNo: 'Cancelar',
+    deleted: 'Jornada eliminada',
+    deleteError: 'No se pudo eliminar. Inténtalo de nuevo.',
+    detailTitle: 'Corregir jornada',
+    detailSubtitle: 'Ajusta los datos y guarda los cambios.',
+    saveChanges: 'Guardar cambios',
+  },
+
+  privacidad: {
+    title: 'Aviso de privacidad',
+    updated: 'Última actualización: noviembre de 2026',
+    intro:
+      'Este aviso explica qué datos guarda KmNeto, para qué los usa y cómo puedes controlarlos. Está escrito para que se entienda, no para esconder nada.',
+    sections: [
+      {
+        title: 'Quién es el responsable',
+        body: 'KmNeto es una aplicación para calcular la ganancia real de choferes de plataformas de transporte en México. El responsable del tratamiento de tus datos es el titular del proyecto. Para cualquier asunto relacionado con tus datos, escribe a privacidad@kmneto.app.',
+      },
+      {
+        title: 'Qué datos guardamos',
+        body: 'Solo si creas una cuenta: tu correo electrónico, tu nombre si decides escribirlo y una contraseña cifrada que ni nosotros podemos leer. Además guardamos los cálculos que decidas guardar: viajes, horas, kilómetros, ingresos y gastos del período. No pedimos teléfono, dirección, RFC, CURP ni datos de tu vehículo.',
+      },
+      {
+        title: 'Para qué los usamos',
+        body: 'Para mostrarte tu historial y tus promedios, y para que puedas recuperar tu contraseña. No vendemos tus datos, no los compartimos con las plataformas de transporte y no los usamos para publicidad.',
+      },
+      {
+        title: 'Dónde se almacenan',
+        body: 'En una base de datos PostgreSQL alojada en Neon y la aplicación corre en Vercel. El acceso está restringido: cada cuenta solo puede consultar sus propios cálculos.',
+      },
+      {
+        title: 'Cuánto tiempo los conservamos',
+        body: 'Mientras tu cuenta exista. Si pides la eliminación de tu cuenta, borramos tus datos personales y tus cálculos.',
+      },
+      {
+        title: 'Tus derechos',
+        body: 'Puedes solicitar acceso, corrección, eliminación u oposición al tratamiento de tus datos escribiendo a privacidad@kmneto.app. También puedes eliminar cualquier jornada desde tu historial en la aplicación.',
+      },
+      {
+        title: 'Cambios a este aviso',
+        body: 'Si cambiamos algo importante, lo avisaremos en la aplicación antes de aplicarlo.',
+      },
+    ],
+    back: 'Volver al inicio',
   },
 };

@@ -370,7 +370,12 @@ export default function Home() {
               </div>
               <div>
                 <h4 className="text-xs font-bold uppercase tracking-widest text-dim">Legal</h4>
-                <span className="mt-3 block text-sm text-muted">Aviso de privacidad (próximamente)</span>
+                <Link
+                  href="/privacidad"
+                  className="mt-3 block text-sm text-muted transition hover:text-fg"
+                >
+                  {messages.privacidad.title}
+                </Link>
               </div>
             </div>
           </div>
