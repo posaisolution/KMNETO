@@ -1,9 +1,14 @@
 import { describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, screen } from '@testing-library/react';
-import CalculadoraPage from './page';
+import CalculadoraClient from './calculadora-client';
 
 vi.mock('@/lib/actions/periodos', () => ({
   savePeriodoAction: vi.fn(async () => ({ ok: false, reason: 'auth' })),
+  updatePeriodoAction: vi.fn(async () => ({ ok: false, reason: 'auth' })),
+}));
+
+vi.mock('next/navigation', () => ({
+  useRouter: () => ({ push: vi.fn(), refresh: vi.fn() }),
 }));
 
 function fillRequiredRealValues() {
@@ -38,7 +43,7 @@ const calcular = () =>
 
 describe('CalculadoraPage', () => {
   it('calcula y muestra resultados con los gastos de bolsillo', () => {
-    render(<CalculadoraPage />);
+    render(<CalculadoraClient />);
 
     fillRequiredRealValues();
     fillRealCosts();
@@ -50,7 +55,7 @@ describe('CalculadoraPage', () => {
   });
 
   it('muestra las métricas por viaje como denominador principal', () => {
-    render(<CalculadoraPage />);
+    render(<CalculadoraClient />);
 
     fillRequiredRealValues();
     fillRealCosts();
@@ -63,7 +68,7 @@ describe('CalculadoraPage', () => {
   });
 
   it('oculta las métricas por hora cuando no se capturan horas', () => {
-    render(<CalculadoraPage />);
+    render(<CalculadoraClient />);
 
     fireEvent.change(screen.getByLabelText(/viajes del período/i), {
       target: { value: '40' },
@@ -82,7 +87,7 @@ describe('CalculadoraPage', () => {
   });
 
   it('cambia la etiqueta de la renta según el período', () => {
-    render(<CalculadoraPage />);
+    render(<CalculadoraClient />);
 
     expect(screen.getByLabelText(/renta x d[ií]a/i)).toBeInTheDocument();
 
@@ -93,14 +98,14 @@ describe('CalculadoraPage', () => {
   });
 
   it('ya no muestra la sección del auto', () => {
-    render(<CalculadoraPage />);
+    render(<CalculadoraClient />);
 
     expect(screen.queryByText(/tu auto/i)).not.toBeInTheDocument();
     expect(screen.queryByLabelText(/valor del auto/i)).not.toBeInTheDocument();
   });
 
   it('explica una métrica al tocar el botón de ayuda', () => {
-    render(<CalculadoraPage />);
+    render(<CalculadoraClient />);
 
     fillRequiredRealValues();
     fillRealCosts();
@@ -120,7 +125,7 @@ describe('CalculadoraPage', () => {
   });
 
   it('calcula gasolina estimada con rendimiento y precio', () => {
-    render(<CalculadoraPage />);
+    render(<CalculadoraClient />);
 
     fillRequiredRealValues();
     fireEvent.click(screen.getByRole('button', { name: /estimar/i }));
@@ -145,7 +150,7 @@ describe('CalculadoraPage', () => {
   });
 
   it('limpia los campos y el resultado al cambiar de período', () => {
-    render(<CalculadoraPage />);
+    render(<CalculadoraClient />);
 
     fillRequiredRealValues();
     fillRealCosts();
@@ -161,7 +166,7 @@ describe('CalculadoraPage', () => {
   });
 
   it('no borra los campos al tocar el período que ya está activo', () => {
-    render(<CalculadoraPage />);
+    render(<CalculadoraClient />);
 
     fireEvent.change(screen.getByLabelText(/viajes del período/i), {
       target: { value: '40' },
@@ -173,7 +178,7 @@ describe('CalculadoraPage', () => {
   });
 
   it('solo acepta números en los campos', () => {
-    render(<CalculadoraPage />);
+    render(<CalculadoraClient />);
 
     const viajes = screen.getByLabelText(/viajes del período/i);
 
@@ -188,7 +193,7 @@ describe('CalculadoraPage', () => {
   });
 
   it('muestra errores de validación cuando faltan campos requeridos', () => {
-    render(<CalculadoraPage />);
+    render(<CalculadoraClient />);
 
     calcular();
 

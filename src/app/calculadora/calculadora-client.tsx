@@ -1,9 +1,10 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useMemo, useState, useTransition } from "react";
 import { calcularPeriodo, EntradaPeriodo, ResultadoPeriodo } from "@/lib/calc";
-import { savePeriodoAction } from "@/lib/actions/periodos";
+import { savePeriodoAction, updatePeriodoAction } from "@/lib/actions/periodos";
 import { messages } from "@/lib/i18n/messages";
 import { explicarMetrica, MetricaId } from "@/lib/i18n/explicaciones";
 import {
@@ -83,12 +84,32 @@ function parseNumber(value: string | undefined | null): number | null {
   return parsed;
 }
 
-export default function CalculadoraPage() {
-  const [values, setValues] = useState<Record<string, string>>({});
+type CalculadoraClientProps = {
+  periodoId?: string;
+  initialValues?: Record<string, string>;
+  initialTipo?: Periodo;
+  initialGasMode?: GasMode;
+  initialEntrada?: EntradaPeriodo;
+  initialFechaInicio?: string;
+};
+
+export default function CalculadoraClient({
+  periodoId,
+  initialValues,
+  initialTipo,
+  initialGasMode,
+  initialEntrada,
+  initialFechaInicio,
+}: CalculadoraClientProps) {
+  const [values, setValues] = useState<Record<string, string>>(initialValues ?? {});
   const [touched, setTouched] = useState<Record<string, boolean>>({});
-  const [gasMode, setGasMode] = useState<GasMode>("real");
-  const [periodo, setPeriodo] = useState<Periodo>("dia");
-  const [calculo, setCalculo] = useState<Calculo | null>(null);
+  const [gasMode, setGasMode] = useState<GasMode>(initialGasMode ?? "real");
+  const [periodo, setPeriodo] = useState<Periodo>(initialTipo ?? "dia");
+  const [calculo, setCalculo] = useState<Calculo | null>(() =>
+    initialEntrada
+      ? { entrada: initialEntrada, resultado: calcularPeriodo(initialEntrada) }
+      : null,
+  );
 
   const rentaField: FieldDef = {
     ...RENTA_FIELD,
@@ -258,9 +279,11 @@ export default function CalculadoraPage() {
         <div className="mx-auto max-w-xl space-y-6">
           <header className="text-center">
             <h1 className="text-3xl font-extrabold tracking-tight text-fg md:text-4xl">
-              {messages.app.title}
+              {periodoId ? messages.dashboard.detailTitle : messages.app.title}
             </h1>
-            <p className="mt-2 text-sm text-muted">{messages.app.subtitle}</p>
+            <p className="mt-2 text-sm text-muted">
+              {periodoId ? messages.dashboard.detailSubtitle : messages.app.subtitle}
+            </p>
           </header>
 
           <form onSubmit={handleCalcular} className="space-y-5">
@@ -352,6 +375,8 @@ export default function CalculadoraPage() {
               entrada={calculo.entrada}
               resultado={calculo.resultado}
               tipo={periodo}
+              periodoId={periodoId}
+              fechaInicio={initialFechaInicio}
             />
           )}
         </div>
@@ -370,10 +395,14 @@ function ResultadosSection({
   entrada,
   resultado,
   tipo,
+  periodoId,
+  fechaInicio,
 }: {
   entrada: EntradaPeriodo;
   resultado: ResultadoPeriodo;
   tipo: Periodo;
+  periodoId?: string;
+  fechaInicio?: string;
 }) {
   const [metricaActiva, setMetricaActiva] = useState<MetricaId | null>(null);
 
@@ -498,7 +527,12 @@ function ResultadosSection({
         </div>
       </div>
 
-      <SavePeriodoButton entrada={entrada} tipo={tipo} />
+      <SavePeriodoButton
+        entrada={entrada}
+        tipo={tipo}
+        periodoId={periodoId}
+        fechaInicio={fechaInicio}
+      />
     </section>
   );
 }
@@ -508,19 +542,24 @@ type SaveState = "idle" | "saving" | "saved" | "auth" | "error";
 function SavePeriodoButton({
   entrada,
   tipo,
+  periodoId,
+  fechaInicio,
 }: {
   entrada: EntradaPeriodo;
   tipo: Periodo;
+  periodoId?: string;
+  fechaInicio?: string;
 }) {
+  const router = useRouter();
   const [state, setState] = useState<SaveState>("idle");
   const [isPending, startTransition] = useTransition();
 
   const handleSave = () => {
     setState("saving");
     startTransition(async () => {
-      const result = await savePeriodoAction({
+      const payload = {
         tipo,
-        fechaInicio: new Date().toISOString(),
+        fechaInicio: fechaInicio ?? new Date().toISOString(),
         viajes: entrada.viajes,
         horasConectado: entrada.horasConectado,
         km: entrada.km,
@@ -537,11 +576,23 @@ function SavePeriodoButton({
           categoria: imprevisto.categoria,
           monto: imprevisto.monto,
         })),
-      });
+      };
 
-      if (result.ok) setState("saved");
-      else if (result.reason === "auth") setState("auth");
-      else setState("error");
+      const result = periodoId
+        ? await updatePeriodoAction(periodoId, payload)
+        : await savePeriodoAction(payload);
+
+      if (result.ok) {
+        if (periodoId) {
+          router.push("/dashboard");
+          return;
+        }
+        setState("saved");
+      } else if (result.reason === "auth") {
+        setState("auth");
+      } else {
+        setState("error");
+      }
     });
   };
 
@@ -578,7 +629,7 @@ function SavePeriodoButton({
         disabled={isPending || state === "saving"}
         className="w-full rounded-xl border border-gain bg-gain-soft px-4 py-3.5 text-base font-semibold text-gain transition hover:bg-gain hover:text-white disabled:opacity-60"
       >
-        {state === "saving" ? "..." : messages.dashboard.savePeriod}
+        {state === "saving" ? "..." : periodoId ? messages.dashboard.saveChanges : messages.dashboard.savePeriod}
       </button>
       {state === "error" && (
         <p role="alert" className="mt-2 text-center text-sm font-medium text-danger">
