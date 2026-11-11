@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useTransition } from "react";
 import { calcularPeriodo, EntradaPeriodo, ResultadoPeriodo } from "@/lib/calc";
+import { savePeriodoAction } from "@/lib/actions/periodos";
 import { messages } from "@/lib/i18n/messages";
 import { explicarMetrica, MetricaId } from "@/lib/i18n/explicaciones";
 import {
@@ -244,7 +245,12 @@ export default function CalculadoraPage() {
             ← Volver
           </Link>
           <span className="text-lg font-bold text-fg">{messages.app.title}</span>
-          <span className="w-12" aria-hidden="true" />
+          <Link
+            href="/dashboard"
+            className="text-sm font-semibold text-muted transition hover:text-gain"
+          >
+            {messages.dashboard.title}
+          </Link>
         </div>
       </header>
 
@@ -345,6 +351,7 @@ export default function CalculadoraPage() {
             <ResultadosSection
               entrada={calculo.entrada}
               resultado={calculo.resultado}
+              tipo={periodo}
             />
           )}
         </div>
@@ -362,9 +369,11 @@ type MetricaCard = {
 function ResultadosSection({
   entrada,
   resultado,
+  tipo,
 }: {
   entrada: EntradaPeriodo;
   resultado: ResultadoPeriodo;
+  tipo: Periodo;
 }) {
   const [metricaActiva, setMetricaActiva] = useState<MetricaId | null>(null);
 
@@ -488,7 +497,95 @@ function ResultadosSection({
           </div>
         </div>
       </div>
+
+      <SavePeriodoButton entrada={entrada} tipo={tipo} />
     </section>
+  );
+}
+
+type SaveState = "idle" | "saving" | "saved" | "auth" | "error";
+
+function SavePeriodoButton({
+  entrada,
+  tipo,
+}: {
+  entrada: EntradaPeriodo;
+  tipo: Periodo;
+}) {
+  const [state, setState] = useState<SaveState>("idle");
+  const [isPending, startTransition] = useTransition();
+
+  const handleSave = () => {
+    setState("saving");
+    startTransition(async () => {
+      const result = await savePeriodoAction({
+        tipo,
+        fechaInicio: new Date().toISOString(),
+        viajes: entrada.viajes,
+        horasConectado: entrada.horasConectado,
+        km: entrada.km,
+        ingresoPlataforma: entrada.ingresoPlataforma,
+        propinasYEfectivo: entrada.propinasYEfectivo,
+        rentaPeriodo: entrada.rentaPeriodo,
+        celularRecargasPeriodo: entrada.celularRecargasPeriodo,
+        gastoRealGasolina: entrada.gastoRealGasolina,
+        rendimientoKmPorLitro: entrada.rendimientoKmPorLitro,
+        precioLitro: entrada.precioLitro,
+        otrosGastosPeriodo: entrada.otrosGastosPeriodo,
+        imprevistos: entrada.imprevistos?.map((imprevisto) => ({
+          fecha: imprevisto.fecha.toISOString(),
+          categoria: imprevisto.categoria,
+          monto: imprevisto.monto,
+        })),
+      });
+
+      if (result.ok) setState("saved");
+      else if (result.reason === "auth") setState("auth");
+      else setState("error");
+    });
+  };
+
+  if (state === "saved") {
+    return (
+      <div className="mt-4 rounded-2xl border border-gain/30 bg-gain-soft px-4 py-3 text-center text-sm font-medium text-gain">
+        {messages.dashboard.saved}{" "}
+        <Link href="/dashboard" className="underline underline-offset-2">
+          {messages.dashboard.title}
+        </Link>
+      </div>
+    );
+  }
+
+  if (state === "auth") {
+    return (
+      <div className="mt-4 rounded-2xl border border-line bg-surface-2 px-4 py-3 text-center text-sm text-muted">
+        {messages.dashboard.savePeriodHint}{" "}
+        <Link
+          href="/registro"
+          className="font-semibold text-gain underline underline-offset-2"
+        >
+          {messages.auth.login.registerLink}
+        </Link>
+      </div>
+    );
+  }
+
+  return (
+    <div className="mt-4">
+      <button
+        type="button"
+        onClick={handleSave}
+        disabled={isPending || state === "saving"}
+        className="w-full rounded-xl border border-gain bg-gain-soft px-4 py-3.5 text-base font-semibold text-gain transition hover:bg-gain hover:text-white disabled:opacity-60"
+      >
+        {state === "saving" ? "..." : messages.dashboard.savePeriod}
+      </button>
+      {state === "error" && (
+        <p role="alert" className="mt-2 text-center text-sm font-medium text-danger">
+          {messages.dashboard.saveError}
+        </p>
+      )}
+    </div>
   );
 }
 

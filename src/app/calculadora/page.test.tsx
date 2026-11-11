@@ -1,6 +1,10 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, screen } from '@testing-library/react';
 import CalculadoraPage from './page';
+
+vi.mock('@/lib/actions/periodos', () => ({
+  savePeriodoAction: vi.fn(async () => ({ ok: false, reason: 'auth' })),
+}));
 
 function fillRequiredRealValues() {
   fireEvent.change(screen.getByLabelText(/viajes del período/i), {
