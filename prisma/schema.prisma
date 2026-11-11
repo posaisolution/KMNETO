@@ -1,0 +1,96 @@
+// Prisma schema for KmNeto
+// Docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  passwordHash  String
+  name          String?
+  emailVerified DateTime?
+
+  failedLogins Int       @default(0)
+  lockedUntil  DateTime?
+  lastLoginAt  DateTime?
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  periodos    Periodo[]
+  resetTokens PasswordResetToken[]
+
+  @@index([deletedAt])
+}
+
+model PasswordResetToken {
+  id        String    @id @default(cuid())
+  tokenHash String    @unique
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId])
+}
+
+model Periodo {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  /// "dia" | "semana"
+  tipo        String
+  fechaInicio DateTime
+
+  viajes        Int
+  horasConectado Float?
+  km             Float
+
+  ingresoPlataforma Float
+  propinasYEfectivo Float?
+
+  rentaPeriodo           Float?
+  celularRecargasPeriodo Float?
+
+  gastoRealGasolina     Float?
+  rendimientoKmPorLitro Float?
+  precioLitro           Float?
+
+  otrosGastosPeriodo Float?
+
+  /// "reales" | "suavizados"
+  imprevistosModo String @default("reales")
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  imprevistos Imprevisto[]
+
+  @@index([userId, fechaInicio])
+  @@index([userId, deletedAt])
+}
+
+model Imprevisto {
+  id        String  @id @default(cuid())
+  periodoId String
+  periodo   Periodo @relation(fields: [periodoId], references: [id], onDelete: Cascade)
+
+  fecha     DateTime
+  categoria String
+  monto     Float
+
+  createdAt DateTime @default(now())
+
+  @@index([periodoId])
+}

@@ -10,6 +10,7 @@ export const messages = {
     comoFunciona: 'Cómo funciona',
     preguntas: 'Preguntas',
     calcular: 'Calcular',
+    entrar: 'Entrar',
   },
 
   landing: {
@@ -77,7 +78,8 @@ export const messages = {
         },
         {
           question: '¿Mis datos se guardan?',
-          answer: 'No. Por ahora todo se calcula en tu celular; no guardamos información en servidores.',
+          answer:
+            'El cálculo es gratis y no necesitas cuenta. Si creas una cuenta, guardamos tus cálculos para mostrarte tu historial y tus promedios.',
         },
         {
           question: '¿Puedo calcular una semana?',
@@ -189,5 +191,86 @@ export const messages = {
     negative: 'El valor no puede ser negativo',
     invalidNumber: 'Escribe un número válido',
     positive: 'Debe ser mayor a 0',
+  },
+
+  auth: {
+    fields: {
+      email: 'Correo electrónico',
+      password: 'Contraseña',
+      name: 'Tu nombre (opcional)',
+      confirmPassword: 'Confirma tu contraseña',
+    },
+    placeholders: {
+      email: 'tucorreo@ejemplo.com',
+      password: 'Mínimo 8 caracteres',
+      name: 'Cómo te llamas',
+    },
+    login: {
+      title: 'Entra a tu cuenta',
+      subtitle: 'Guarda tus jornadas y revisa tu historial.',
+      submit: 'Entrar',
+      noAccount: '¿Todavía no tienes cuenta?',
+      registerLink: 'Crear una gratis',
+      forgotLink: 'Olvidé mi contraseña',
+    },
+    register: {
+      title: 'Crea tu cuenta',
+      subtitle: 'Gratis. Solo necesitas tu correo para guardar tus cálculos.',
+      submit: 'Crear cuenta',
+      hasAccount: '¿Ya tienes cuenta?',
+      loginLink: 'Entra aquí',
+      privacy: 'Al crear tu cuenta aceptas que guardemos tus cálculos para mostrarte tu historial.',
+    },
+    forgot: {
+      title: 'Recupera tu contraseña',
+      subtitle: 'Te enviaremos un enlace a tu correo para crear una nueva.',
+      submit: 'Enviar enlace',
+      backToLogin: 'Volver a entrar',
+      sentTitle: 'Revisa tu correo',
+      sentBody:
+        'Si existe una cuenta con ese correo, te enviamos un enlace para restablecer tu contraseña. Revisa también la carpeta de spam.',
+    },
+    reset: {
+      title: 'Nueva contraseña',
+      subtitle: 'Escribe una contraseña nueva para tu cuenta.',
+      submit: 'Guardar contraseña',
+      invalidTitle: 'Enlace no válido',
+      invalidBody:
+        'Este enlace ya se usó o expiró. Pide uno nuevo para continuar.',
+      requestNew: 'Pedir un enlace nuevo',
+      success: 'Tu contraseña se actualizó. Ya puedes entrar.',
+    },
+    errors: {
+      invalidEmail: 'Escribe un correo válido',
+      shortPassword: 'La contraseña debe tener al menos 8 caracteres',
+      longPassword: 'La contraseña es demasiado larga',
+      longName: 'El nombre es demasiado largo',
+      required: 'Completa este campo',
+      invalidToken: 'El enlace no es válido',
+      expiredToken: 'El enlace expiró. Pide uno nuevo.',
+      emailTaken: 'Ya existe una cuenta con ese correo',
+      invalidCredentials: 'Correo o contraseña incorrectos',
+      locked: 'Demasiados intentos. Espera 15 minutos e inténtalo de nuevo.',
+      generic: 'Algo salió mal. Inténtalo de nuevo.',
+      passwordsDontMatch: 'Las contraseñas no coinciden',
+    },
+  },
+
+  dashboard: {
+    title: 'Tu historial',
+    subtitle: 'Tus jornadas guardadas, con tu ganancia real.',
+    greeting: 'Hola',
+    empty: {
+      title: 'Todavía no guardas ninguna jornada',
+      body: 'Calcula tu día o tu semana y guárdalo para llevar tu historial.',
+      cta: 'Calcular mi ganancia',
+    },
+    logout: 'Salir',
+    savePeriod: 'Guardar en mi historial',
+    savePeriodHint: 'Crea una cuenta gratis para guardar este cálculo.',
+    saved: 'Guardado en tu historial',
+    saveError: 'No se pudo guardar. Inténtalo de nuevo.',
+    savedAt: 'Guardado',
+    deletePeriod: 'Eliminar',
   },
 };
