@@ -45,6 +45,8 @@ export default async function EditarPeriodoPage({
       initialGasMode={modoGasolina(entrada)}
       initialEntrada={entrada}
       initialFechaInicio={periodo.fechaInicio.toISOString()}
+      backHref="/dashboard"
+      showHistoryLink
     />
   );
 }

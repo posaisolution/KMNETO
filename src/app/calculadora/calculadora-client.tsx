@@ -91,6 +91,10 @@ type CalculadoraClientProps = {
   initialGasMode?: GasMode;
   initialEntrada?: EntradaPeriodo;
   initialFechaInicio?: string;
+  /** A dónde regresa el enlace "Volver": dashboard con sesión, landing sin ella. */
+  backHref?: string;
+  /** La liga al historial solo tiene sentido con una sesión iniciada. */
+  showHistoryLink?: boolean;
 };
 
 export default function CalculadoraClient({
@@ -100,6 +104,8 @@ export default function CalculadoraClient({
   initialGasMode,
   initialEntrada,
   initialFechaInicio,
+  backHref = "/",
+  showHistoryLink = false,
 }: CalculadoraClientProps) {
   const [values, setValues] = useState<Record<string, string>>(initialValues ?? {});
   const [touched, setTouched] = useState<Record<string, boolean>>({});
@@ -262,16 +268,25 @@ export default function CalculadoraClient({
 
       <header className="relative z-10 border-b border-line bg-surface/90 px-5 py-4 backdrop-blur">
         <div className="mx-auto flex max-w-xl items-center justify-between">
-          <Link href="/" className="text-sm font-semibold text-muted transition hover:text-gain">
+          <Link
+            href={backHref}
+            className="text-sm font-semibold text-muted transition hover:text-gain"
+          >
             ← Volver
           </Link>
           <span className="text-lg font-bold text-fg">{messages.app.title}</span>
-          <Link
-            href="/dashboard"
-            className="text-sm font-semibold text-muted transition hover:text-gain"
-          >
-            {messages.dashboard.title}
-          </Link>
+          {showHistoryLink ? (
+            <Link
+              href="/dashboard"
+              className="text-sm font-semibold text-muted transition hover:text-gain"
+            >
+              {messages.dashboard.title}
+            </Link>
+          ) : (
+            <span aria-hidden="true" className="text-sm font-semibold text-transparent">
+              {messages.dashboard.title}
+            </span>
+          )}
         </div>
       </header>
 
