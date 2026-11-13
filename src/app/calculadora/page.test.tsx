@@ -1,6 +1,8 @@
 import { describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, screen } from '@testing-library/react';
 import CalculadoraClient from './calculadora-client';
+import CalculadoraPage from './page';
+import { auth } from '@/lib/auth';
 
 vi.mock('@/lib/actions/periodos', () => ({
   savePeriodoAction: vi.fn(async () => ({ ok: false, reason: 'auth' })),
@@ -10,6 +12,12 @@ vi.mock('@/lib/actions/periodos', () => ({
 vi.mock('next/navigation', () => ({
   useRouter: () => ({ push: vi.fn(), refresh: vi.fn() }),
 }));
+
+vi.mock('@/lib/auth', () => ({
+  auth: vi.fn(async () => null),
+}));
+
+const authMock = vi.mocked(auth);
 
 function fillRequiredRealValues() {
   fireEvent.change(screen.getByLabelText(/viajes del período/i), {
@@ -198,5 +206,31 @@ describe('CalculadoraPage', () => {
     calcular();
 
     expect(screen.getAllByText(/completa este campo/i).length).toBeGreaterThanOrEqual(4);
+  });
+});
+
+describe('CalculadoraPage — navegación de regreso', () => {
+  it('con sesión regresa al dashboard y muestra la liga al historial', async () => {
+    authMock.mockResolvedValue({ user: { id: 'user-1' } } as never);
+
+    render(await CalculadoraPage());
+
+    expect(screen.getByRole('link', { name: /volver/i })).toHaveAttribute(
+      'href',
+      '/dashboard'
+    );
+    expect(screen.getByRole('link', { name: /tu historial/i })).toHaveAttribute(
+      'href',
+      '/dashboard'
+    );
+  });
+
+  it('en la versión gratuita regresa a la landing y no ofrece historial', async () => {
+    authMock.mockResolvedValue(null as never);
+
+    render(await CalculadoraPage());
+
+    expect(screen.getByRole('link', { name: /volver/i })).toHaveAttribute('href', '/');
+    expect(screen.queryByRole('link', { name: /tu historial/i })).not.toBeInTheDocument();
   });
 });
