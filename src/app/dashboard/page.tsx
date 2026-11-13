@@ -73,6 +73,13 @@ export default async function DashboardPage() {
             {messages.dashboard.empty.cta}
           </Link>
 
+          <Link
+            href="/dashboard/metricas"
+            className="block rounded-2xl border border-line bg-surface px-5 py-3 text-center text-sm font-semibold text-fg shadow-sm transition hover:bg-surface-2"
+          >
+            {messages.dashboard.metricsLink}
+          </Link>
+
           {periodos.length === 0 ? (
             <section className="rounded-3xl border border-dashed border-line-strong bg-surface p-8 text-center">
               <h2 className="text-base font-semibold text-fg">

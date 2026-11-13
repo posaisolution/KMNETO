@@ -281,6 +281,69 @@ export const messages = {
     detailTitle: 'Corregir jornada',
     detailSubtitle: 'Ajusta los datos y guarda los cambios.',
     saveChanges: 'Guardar cambios',
+    metricsLink: 'Ver mis métricas',
+  },
+
+  metricas: {
+    title: 'Tu semana',
+    subtitle:
+      'Tus promedios y tus mejores días, calculados con tus jornadas guardadas.',
+    back: 'Volver al historial',
+    empty: {
+      title: 'Aún no hay jornadas de un día',
+      body: 'Guarda al menos una jornada de tipo "Un día" para ver tus promedios y tus mejores días. Las semanas guardadas no se reparten por día.',
+      cta: 'Calcular mi día',
+    },
+    semana: {
+      title: 'Últimos 7 días',
+      hint: 'Contados desde tu jornada más reciente.',
+      neto: 'Neto total',
+      viajes: 'Viajes',
+      km: 'Kilómetros',
+      horas: 'Horas conectado',
+      jornadas: 'Jornadas',
+    },
+    promedios: {
+      title: 'Promedio por jornada',
+      hint: 'Solo jornadas de un día; las semanas quedan fuera para no contar doble.',
+      netoPorJornada: 'Neto por jornada',
+      netoPorViaje: 'Neto por viaje',
+      netoPorHora: 'Neto por hora',
+      sinHoras: 'Captura horas en tus jornadas para ver este promedio.',
+    },
+    mejoresDias: {
+      title: 'Mejores días',
+      hint: 'Promedio de neto según el día en que registraste la jornada.',
+      jornadas: 'jornadas',
+      unaJornada: 'jornada',
+      sinDatos: 'Todavía no hay suficientes jornadas para comparar días.',
+    },
+    reto: {
+      title: 'Reto semanal',
+      subtitle:
+        'Escribe cuánto quieres ganar a la semana y te decimos cuántos viajes y horas necesitas, con tus promedios.',
+      label: 'Meta semanal',
+      placeholder: 'Ejemplo: 5000',
+      hint: 'Es un estimado. Si mejoras tus viajes por hora, necesitarás menos tiempo.',
+      viajes: 'Viajes necesarios',
+      horas: 'Horas necesarias',
+      sinEstimacion:
+        'Con tus números actuales no hay forma de estimar: tu neto por viaje o por hora es cero o negativo. Revisa tus gastos antes de ponerte una meta.',
+      base: 'Calculado con',
+      baseJornada: 'jornada de tus últimos 7 días.',
+      baseJornadas: 'jornadas de tus últimos 7 días.',
+      baseViaje: 'Neto por viaje',
+      baseHora: 'Neto por hora',
+    },
+    dias: {
+      '1': 'Lunes',
+      '2': 'Martes',
+      '3': 'Miércoles',
+      '4': 'Jueves',
+      '5': 'Viernes',
+      '6': 'Sábado',
+      '7': 'Domingo',
+    },
   },
 
   privacidad: {
